@@ -5,3 +5,4 @@ Backend of the campus food ordering system (Uni-bites)
 | ID         | Name              | GitHub Username |
 |------------|-----------------|----------------|
 | ETS0229/16 | **Beamlak Atilabachew**     | [Beamlak-Atilabachew](https://github.com/Beamlak-Atilabachew) |
+| ETS0222/16 | **Barkot Frew**     | [Barkotfrew](https://github.com/Barkotfrew) |
