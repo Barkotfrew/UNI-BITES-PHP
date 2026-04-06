@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Uni Bites</title>
+    <link rel="stylesheet" href="css/Admin-home.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="images/uni bites favicon.png">
+</head>
+<body>
+<!-- Navigation Bar -->
+    <nav class="nav">
+        <div class="nav-logo">
+            <img src="Images/uni bites logo Transpareent.png" alt="Uni-Bites Logo">
+               <span>Uni-Bites</span>
+        </div>
+     
+
+        <div class="nav-links">
+            <a class="active" href="Admin-home.html">Home</a>
+            <a href="admin-account.html">Account</a>
+        </div>
+    </nav>
+
+<!--hero-->
+
+    <!-- Admin Dashboard -->
+    <main class="admin-main">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <h2>Admin Dashboard</h2>
+            <div class="admin-user">
+                <div class="avatar">AB</div>
+                <div class="user-details">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-email">admin@unibites.com</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="actions-grid">
+                <a href="#" class="action-card">
+                    <i class="fas fa-user-check"></i>
+                    <h4>Verify Cafes</h4>
+                    <p>Approve cafe accounts</p>
+                </a>
+                <a href="#" class="action-card">
+                    <i class="fas fa-user-check"></i>
+                    <h4>Verify Users</h4>
+                    <p>Approve student accounts</p>
+                </a>
+                <a href="#" class="action-card">
+                    <i class="fas fa-user-slash"></i>
+                    <h4>Block User</h4>
+                    <p>Block cafe or student</p>
+                </a>
+                <a href="#" class="action-card">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h4>View Issues</h4>
+                    <p>Check unresolved orders</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Blocked/Removed Users -->
+        <section class="table-section">
+            <div class="section-header">
+                <h3>Blocked/Removed Users</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Blocked Date</th>
+                        <th>Reason</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#U1024</td>
+                        <td>John Doe</td>
+                        <td>Student</td>
+                        <td>2023-10-15</td>
+                        <td>Multiple violations</td>
+                        <td><button class="btn outline">Unblock</button></td>
+                    </tr>
+                    <tr>
+                        <td>#C2048</td>
+                        <td>Central Cafe</td>
+                        <td>Cafe</td>
+                        <td>2023-10-10</td>
+                        <td>Health violations</td>
+                        <td><button class="btn outline">Restore</button></td>
+                    </tr>
+                    <tr>
+                        <td>#U2049</td>
+                        <td>Mike Johnson</td>
+                        <td>Student</td>
+                        <td>2023-10-05</td>
+                        <td>Payment fraud</td>
+                        <td><button class="btn outline">Unblock</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Pending Approvals -->
+        <section class="table-section">
+            <div class="section-header">
+                <h3>Pending Cafe Approvals</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cafe Name</th>
+                        <th>Location</th>
+                        <th>Owner</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Java House</td>
+                        <td>Main Campus</td>
+                        <td>Robert Chen</td>
+                        <td>2 hours ago</td>
+                        <td><span class="badge warning">Review</span></td>
+                        <td>
+                            <button class="btn primary small">Approve</button>
+                            <button class="btn outline small">Review</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Pizza Corner</td>
+                        <td>East Campus</td>
+                        <td>Maria Garcia</td>
+                        <td>5 hours ago</td>
+                        <td><span class="badge warning">Documents</span></td>
+                        <td>
+                            <button class="btn primary small">Approve</button>
+                            <button class="btn outline small">Review</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Smoothie Bar</td>
+                        <td>West Campus</td>
+                        <td>David Kim</td>
+                        <td>1 day ago</td>
+                        <td><span class="badge warning">Verification</span></td>
+                        <td>
+                            <button class="btn primary small">Approve</button>
+                            <button class="btn outline small">Review</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Footer -->
+        <footer class="admin-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Emergency</h3>
+                    <p><i class="fas fa-phone-alt"></i> Admin Hotline:📞 +(251) 911-456-725-ADMIN</p>
+                    <button class="btn-alert">
+                        <i class="fas fa-exclamation-triangle"></i> Emergency Lockdown
+                    </button>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-cog"></i> System Settings</a></li>
+                        <li><a href="#"><i class="fas fa-file-alt"></i> Reports</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3><i class="fas fa-shield-alt"></i> Uni Bites Admin</h3>
+                    <p>Secure campus food delivery management system</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Uni Bites Admin System</p>
+            </div>
+        </footer>
+    </main>
+    <script src="js/Admin-home.js"></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Account - Uni-Bites</title>
+<link rel="stylesheet" href="css/student-account.css">
+<link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="nav">
+    <div class="nav-logo">
+        <img src="Images/uni bites logo Transpareent.png" alt="Uni-Bites Logo">
+        <span>Uni-Bites</span>
+    </div>
+
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="menu.html">Menu</a>
+        <a href="orders.html">Order</a>
+        <a href="cart.html">Cart</a>
+        <a href="notification.html">Notifications</a>
+        <a class="active" href="account.html">Account</a>
+    </div>
+</nav>
+
+<main class="account-container">
+
+  <!-- PROFILE CARD -->
+  <section class="profile-card">
+      <div class="profile-avatar-large">
+          <img src="https://avatar.iran.liara.run/public" alt="Avatar">
+      </div>
+      <div class="profile-info-large">
+          <h2 id="profileName">Student User</h2>
+          <p id="profilePhone">09********</p>
+      </div>
+  </section>
+
+  <!-- EDIT PROFILE -->
+  <section class="account-section" id="editProfileSection">
+      <h3>Edit Profile</h3>
+      <form id="profileForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="fullName" placeholder="Student User">
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" id="phone" placeholder="09********">
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="student@aastu.edu.et">
+        </div>
+
+        <div class="form-group">
+          <label>Profile Picture</label>
+          <input type="file" id="avatarUpload" accept="image/*">
+        </div>
+
+        <button type="submit" class="btn">Save Changes</button>
+      </form>
+  </section>
+
+  <!-- STUDENT INFO -->
+  <section class="account-section">
+      <h3>Student Information</h3>
+
+      <div class="info-row">
+        <span>Student ID</span>
+        <span id="infoStudentId">ETS****/**</span>
+      </div>
+      <div class="info-row">
+        <span>Phone</span>
+        <span id="infoPhone">09********</span>
+      </div>
+      <div class="info-row">
+        <span>Email</span>
+        <span id="infoEmail">student@aastu.edu.et</span>
+      </div>
+  </section>
+
+  <!-- STATS GRID -->
+  <section class="stats-grid">
+      <div class="stat-card">
+          <p class="stat-value" id="totalOrders">24</p>
+          <p class="stat-label">Total Orders</p>
+      </div>
+      <div class="stat-card">
+          <p class="stat-value" id="favoriteCafes">3</p>
+          <p class="stat-label">Favorite Cafes</p>
+      </div>
+      <div class="stat-card">
+          <p class="stat-value" id="rewardPoints">120</p>
+          <p class="stat-label">Rewards Points</p>
+      </div>
+      <div class="stat-card">
+          <p class="stat-value" id="pendingOrders">5</p>
+          <p class="stat-label">Pending Orders</p>
+      </div>
+  </section>
+
+  <!-- SIGN OUT -->
+  <button class="btn logout">Sign Out</button>
+
+</main>
+<!--footer-->
+<footer>
+    <div class="footer-content">
+
+        <div class="footer-section">
+            <h3>Uni Bites</h3>
+            <p>Ordering delicious food from nearby lauges in campus starting from 2025.</p>
+        </div>
+
+
+        <div class="footer-section">
+            <h3>Contact Us</h3>
+            <p>📍 AASTU-unibites, Addis Ababa</p>
+            <p>📞 +(251) 923-456-725</p>
+            <p>✉️ support@unibites.com</p>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 Unibites. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="js/student-account.js"></script>
+</body>
+</html>
