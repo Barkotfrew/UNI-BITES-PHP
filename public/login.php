@@ -1,69 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - UniBites</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .form-container { background: white; padding: 2rem; border-radius: 8px; width: 100%; max-width: 400px; }
-        h2 { text-align: center; margin-bottom: 1.5rem; }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.4rem; font-weight: bold; }
-        input { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
-        button { width: 100%; padding: 0.75rem; background: #e67e22; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; margin-top: 0.5rem; }
-        .error { color: red; font-size: 0.85rem; }
-        .success { color: green; text-align: center; margin-bottom: 1rem; }
-        .signup-link { text-align: center; margin-top: 1rem; }
-        .signup-link a { color: #e67e22; }
-    </style>
-</head>
-<body>
-<div class="form-container">
-    <h2>Log In</h2>
+<?php
+session_start();
+require_once __DIR__ . "/../repositories/UserRepository.php";
 
-    <?php
-    session_start();
+// Only process on POST
+if ($_SERVER["REQUEST_METHOD"] !== "POST" || !isset($_POST["login"])) {
+    header("Location: ../Frontend/student-register.html");
+    exit;
+}
 
-    // show success message if coming from signup
-    if (isset($_SESSION["success"])) {
-        echo "<p class='success'>" . $_SESSION["success"] . "</p>";
-        $_SESSION["success"] = "";
-    }
+$username = trim($_POST["username"] ?? "");
+$password = trim($_POST["password"] ?? "");
+$role     = trim($_POST["role"]     ?? "");
 
-    // show errors if login failed
-    $errors = array();
-    if (isset($_SESSION["errors"])) {
-        $errors = $_SESSION["errors"];
-        $_SESSION["errors"] = array();
-    }
+$errors = [];
 
-    // if form submitted, send to AuthService
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        require_once "../services/AuthService.php";
-        login($_POST);
-    }
-    ?>
+if ($username === "") $errors[] = "Username is required.";
+if ($password === "") $errors[] = "Password is required.";
 
-    <?php if (isset($errors["general"])) { echo "<p class='error'>" . $errors["general"] . "</p>"; } ?>
+// Determine return page
+$returnPages = [
+    "student" => "../Frontend/student-register.html",
+    "cafe"    => "../Frontend/cafe-register.html",
+    "admin"   => "../Frontend/admin-register.html",
+];
+$returnPage = $returnPages[$role] ?? "../Frontend/student-register.html";
 
-    <form method="POST" action="login.php">
+if (!empty($errors)) {
+    showMessage(implode("<br>", $errors), "error", $returnPage);
+    exit;
+}
 
-        <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" placeholder="Enter your email">
+// Look up user by username, fall back to email
+$user = getUserByUsername($username);
+if (!$user) {
+    $user = getUserByEmail($username);
+}
+
+if (!$user || !password_verify($password, $user["password"])) {
+    showMessage("Invalid username or password.", "error", $returnPage);
+    exit;
+}
+
+// Store session
+$_SESSION["user_id"]  = $user["id"];
+$_SESSION["username"] = $user["username"];
+$_SESSION["role"]     = $user["role"];
+
+// Redirect to role dashboard
+$dashboards = [
+    "student" => "../Frontend/User-Student/index.html",
+    "cafe"    => "../Frontend/User-Cafe/cafe-home.html",
+    "admin"   => "../Frontend/User-Admin/Admin-home.html",
+];
+$destination = $dashboards[$user["role"]] ?? "../Frontend/role.html";
+header("Location: " . $destination);
+exit;
+
+// -------------------------------------------------------
+// Inline message page
+// -------------------------------------------------------
+function showMessage($message, $type, $backUrl) {
+    $color   = $type === "success" ? "#2ecc71" : "#e74c3c";
+    $bgColor = $type === "success" ? "#eafaf1" : "#fdf0ef";
+    $title   = $type === "success" ? "Success" : "Error";
+    echo <<<HTML
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{$title} - UniBites</title>
+        <style>
+            body { font-family: Arial, sans-serif; background: #f4f4f4;
+                   display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+            .box { background: {$bgColor}; border: 1px solid {$color}; border-radius: 8px;
+                   padding: 2rem 2.5rem; max-width: 420px; text-align: center; }
+            .box p.msg { color: {$color}; font-size: 1rem; margin-bottom: 1rem; }
+            a { display: inline-block; margin-top: 0.5rem; padding: 0.6rem 1.4rem;
+                background: #e67e22; color: #fff; border-radius: 4px; text-decoration: none; font-size: 0.95rem; }
+        </style>
+    </head>
+    <body>
+        <div class="box">
+            <p class="msg">{$message}</p>
+            <a href="{$backUrl}">Go back</a>
         </div>
-
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Enter your password">
-        </div>
-
-        <button type="submit">Log In</button>
-    </form>
-
-    <div class="signup-link">
-        Don't have an account? <a href="signup.php">Sign up</a>
-    </div>
-</div>
-</body>
-</html>
+    </body>
+    </html>
+    HTML;
+}
