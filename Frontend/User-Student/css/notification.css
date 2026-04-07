@@ -1,0 +1,433 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #e8e8e8 0%, #d4d4d4 50%, #c0c0c0 100%);
+  min-height: 100vh;
+}
+
+/* Navigation */
+.nav {
+  background: linear-gradient(135deg, #2c1810 0%, #3d2317 50%, #4a2a1a 100%);
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #f5f5f5;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.nav-links a {
+  color: #e8e8e8;
+  text-decoration: none;
+  padding: 10px 18px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.nav-notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+}
+
+.nav-links a:hover {
+  background: rgba(255,255,255,0.15);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.nav-links a.active {
+  background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(139, 69, 19, 0.4);
+}
+
+.nav-logo img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  filter: brightness(1.1);
+}
+
+/* Main Container */
+.account-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 30px;
+  background: linear-gradient(145deg, #f8f8f8 0%, #e8e8e8 50%, #d8d8d8 100%);
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 40px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.notifications-header {
+  margin-bottom: 35px;
+  text-align: center;
+}
+
+.notifications-header h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  color: #2c1810;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.notification-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 50px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 15px;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 10px 20px;
+  border: 2px solid #3d2317;
+  background: rgba(255,255,255,0.8);
+  color: #2c1810;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.filter-btn:hover {
+  background: #3d2317;
+  color: white;
+  transform: translateY(-3px);
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #2c1810 0%, #3d2317 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(44, 24, 16, 0.4);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.control-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #2c1810 0%, #3d2317 100%);
+  color: white;
+}
+
+.control-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(44, 24, 16, 0.4);
+}
+
+.control-btn.danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+/* Notification List */
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.notification-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f5f5f5 100%);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: all 0.4s ease;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.notification-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.notif-type {
+  display: inline-block;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.ready {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+}
+
+.updated {
+  background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
+}
+
+.reminder {
+  background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%);
+}
+
+.order {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+}
+
+.notification-actions {
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.notification-card:hover .notification-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  background: rgba(255,255,255,0.8);
+  border: 1px solid rgba(0,0,0,0.1);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-size: 16px;
+}
+
+.action-btn:hover {
+  background: rgba(255,255,255,1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.notification-card h3 {
+  margin: 10px 0;
+  color: #2c1810;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.notification-card p {
+  color: #5a4b47;
+  line-height: 1.6;
+  font-size: 15px;
+  margin: 10px 0;
+}
+
+.notification-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.notif-time {
+  font-size: 13px;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.notification-card.unread {
+  border-left: 5px solid #8b4513;
+  background: linear-gradient(145deg, #fffef7 0%, #f9f8f0 100%);
+  animation: newNotification 0.5s ease;
+}
+
+@keyframes newNotification {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.notification-card.read {
+  opacity: 0.85;
+}
+
+.no-notifications {
+  text-align: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
+}
+
+.no-notifications p {
+  font-size: 20px;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Cafe location in order notifications */
+.order-cafe {
+  margin: 8px 0;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e6f2ff 100%);
+  border-radius: 8px;
+  color: #0066cc;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #cce5ff;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.1);
+  transition: all 0.3s ease;
+}
+
+.order-cafe:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 102, 204, 0.2);
+}
+
+.order-cafe::before {
+  content: '📍';
+  font-size: 16px;
+}
+
+/* Toast Notifications */
+.toast {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  padding: 15px 25px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  z-index: 1000;
+  transform: translateX(100%);
+  transition: transform 0.4s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.toast.show {
+  transform: translateX(0);
+}
+
+.toast-success {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .nav {
+    padding: 12px 20px;
+  }
+  
+  .nav-logo {
+    font-size: 18px;
+  }
+  
+  .nav-links {
+    gap: 15px;
+  }
+  
+  .nav-links a {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .account-container {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .notifications-header h1 {
+    font-size: 24px;
+  }
+  
+  .notification-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-buttons {
+    justify-content: center;
+  }
+  
+  .action-buttons {
+    justify-content: center;
+  }
+  
+  .notification-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .notification-actions {
+    opacity: 1;
+  }
+}
+

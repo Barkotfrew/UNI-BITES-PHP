@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Role</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/role.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+</head>
+
+<body>
+
+    <div class="role-wrapper">
+        <h1>Choose Your Role</h1>
+
+        <div class="role-cards">
+            <div class="role-card" onclick="chooseRole('student', event)">
+                <i class="fa-solid fa-user-graduate"></i>
+                <h3>Student</h3>
+                <p>Access campus services</p>
+            </div>
+
+            <div class="role-card" onclick="chooseRole('cafe', event)">
+                <i class="fa-solid fa-mug-hot"></i>
+                <h3>Cafe Owner</h3>
+                <p>Manage your cafe</p>
+            </div>
+
+            <div class="role-card" onclick="chooseRole('admin', event)">
+                <i class="fa-solid fa-user-shield"></i>
+                <h3>Admin</h3>
+                <p>System administration</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/role.js"></script>
+</body>
+</html>

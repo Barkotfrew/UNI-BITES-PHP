@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <html lang="en">
+    <title>My Web Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/cart.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-logo">
+            <img src="Images/uni bites logo Transpareent.png" alt="Uni-Bites Logo">
+            <span> Uni Bites</span>
+        </div>
+        </div>
+
+        <div class="nav-links">
+            <a  href="index.html">Home</a>
+            <a  href="menu.html">Menu</a>
+            <a  href="orders.html">Order</a>
+            <a  class="active" href="cart.html">Cart</a>
+            <a  href="notification.html">Notifications</a>
+            <a href="account.html">Account</a>
+        </div>
+    </nav>
+       <main class="cart-main">
+      <div class="cart-container">
+        <h1>Shopping Cart</h1>
+
+        <div id="cartItems" class="cart-items">
+          <!-- Cart items will be loaded here -->
+        </div>
+
+        <!-- Cart Actions Bar -->
+        <div id="cartActions" class="cart-actions" style="display: none;">
+            <button id="clearCartBtn" class="clear-cart-btn">🗑️ Clear All</button>
+            <button id="saveForLaterBtn" class="save-later-btn">💾 Save for Later</button>
+        </div>
+
+    <div id="emptyCart" class="empty-cart">
+    
+
+        <!-- Main Empty Cart Content -->
+        <div class="empty-content">
+            <div class="empty-icon-container">
+                <div class="empty-icon animated-icon">🛒</div>
+                <div class="icon-shadow"></div>
+            </div>
+            
+            <h2>Your cart is empty</h2>
+            <p>Add some delicious items from our menu to get started!</p>
+
+            <!-- Saved Cart Section -->
+            <div id="savedCartSection" class="saved-cart-section phone-section" style="display: none;">
+                <h4>Saved Cart Available</h4>
+                <div class="saved-cart-info">
+                    <p>You have a saved cart from earlier!</p>
+                    <button id="restoreSavedCartBtn" class="restore-cart-btn">📥 Restore Saved Cart</button>
+                </div>
+            </div>
+
+            <!-- Browse Menu Button -->
+            <button class="browse-btn">Browse Menu</button>
+
+            <!-- Fun Fact -->
+            <div class="fun-fact">
+                <span class="fact-icon">💡</span>
+                <span class="fact-text" id="funFactText">Did you know? The average student orders 3 times per week!</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="cartSummary" class="cart-summary" style="display: none">
+          <div class="summary-row">
+            <span>Subtotal:</span>
+            <span id="subtotal">0 Birr</span>
+          </div>
+
+          <div class="checkout-section">
+            <textarea
+              id="orderNotes"
+              placeholder="Special instructions (optional)"
+            ></textarea>
+
+            <button id="checkoutBtn" class="checkout-btn">
+              <span class="btn-text">Place Order</span>
+              <span class="btn-loader" style="display: none;">⏳ Processing...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+ <!--footer-->
+<footer>
+    <div class="footer-content">
+
+        <div class="footer-section">
+            <h3>Uni Bites</h3>
+            <p>Ordering delicious food from nearby lauges in campus starting from 2025.</p>
+        </div>
+
+
+        <div class="footer-section">
+            <h3>Contact Us</h3>
+            <p>📍 AASTU-unibites, Addis Ababa</p>
+            <p>📞 +(251) 923-456-725</p>
+            <p>✉️ support@unibites.com</p>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 Unibites. All rights reserved.</p>
+    </div>
+</footer>
+<script src="js/cart.js"></script>
+</body>
+</html>
