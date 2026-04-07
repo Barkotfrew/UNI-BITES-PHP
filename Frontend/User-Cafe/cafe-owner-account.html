@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cafe Owner Account - Uni-Bites</title>
+<link rel="stylesheet" href="css/cafe-owner-account.css">
+<link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+<body>
+
+ <!-- Navigation Bar -->
+    <nav class="nav">
+        <div class="nav-logo">
+            <img src="Images/uni bites logo Transpareent.png" alt="Uni-Bites Logo">
+               <span>Uni-Bites</span>
+        </div>
+     
+        <div class="nav-links">
+            <a href="cafe-home.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="order.html">Order</a>
+            <a  class="active" href="cafe-owner-account.html">Account</a>
+        </div>
+    </nav>
+<main class="account-container">
+
+  <!-- PROFILE CARD -->
+  <section class="profile-card">
+      <div class="profile-avatar-large">
+          <img src="https://avatar.iran.liara.run/public" alt="Avatar" id="profileImg">
+      </div>
+      <div class="profile-info-large">
+          <h2 id="profileName">Cafe Owner</h2>
+          <p id="profilePhone">09********</p>
+      </div>
+  </section>
+
+  <!-- SIDE BY SIDE INFO + EDIT FORM -->
+  <section class="side-section">
+    
+    <!-- CAFE OWNER INFO -->
+    <div class="account-section info-section">
+        <h3>Cafe Owner Information</h3>
+        <div class="info-row">
+          <span>Owner ID</span>
+          <span id="infoOwnerId">CFE****</span>
+        </div>
+        <div class="info-row">
+          <span>Phone</span>
+          <span id="infoPhone">09********</span>
+        </div>
+        <div class="info-row">
+          <span>Email</span>
+          <span id="infoEmail">owner@unibites.com</span>
+        </div>
+    </div>
+
+    <!-- EDIT PROFILE -->
+    <div class="account-section edit-section">
+        <h3>Edit Profile</h3>
+        <form id="profileForm">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="fullName" placeholder="Cafe Name">
+          </div>
+
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" id="phone" placeholder="09********">
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="owner@unibites.com">
+          </div>
+
+          <div class="form-group">
+            <label>Profile Picture</label>
+            <input type="file" id="avatarUpload" accept="image/*">
+          </div>
+
+          <button type="submit" class="btn">Save Changes</button>
+        </form>
+    </div>
+
+  </section>
+
+  <!-- SIGN OUT -->
+  <button class="btn logout">Sign Out</button>
+
+</main>
+ <!-- Footer -->
+    <footer class="cafe-footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>Yellow KK Cafe</h3>
+                <p>Managing your cafe operations on Uni Bites</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Support</h3>
+                <a href="#">Cafe Guide</a>
+                <a href="#">Contact Support</a>
+                <a href="#">Update Schedule</a>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Business Info</h3>
+                <p>📍 Center of Campus, Block 52</p>
+                <p>📞 (251) 987-654-325</p>
+                <p>🕒 Open: 8:00 AM - 8:00 PM</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Uni Bites Cafe Dashboard • Yellow KK Cafe</p>
+        </div>
+    </footer>
+<script src="js/cafe-owner-account.js"></script>
+</body>
+</html>

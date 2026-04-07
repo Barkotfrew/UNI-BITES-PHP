@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafe Orders - Uni Bites</title>
+    <link rel="stylesheet" href="css/order.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+<body>
+  <!-- Navigation Bar -->
+    <nav class="nav">
+        <div class="nav-logo">
+            <img src="Images/uni bites logo Transpareent.png" alt="Uni-Bites Logo">
+               <span>Uni-Bites</span>
+        </div>
+     
+        <div class="nav-links">
+            <a  href="cafe-home.html">Home</a>
+            <a  href="menu.html">Menu</a>
+            <a class="active" href="order.html">Order</a>
+            <a href="cafe-owner-account.html">Account</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="cafe-main">
+        <div class="cafe-container">
+            <div class="cafe-header">
+                <h1>Incoming Orders</h1>
+                <div class="order-stats">
+                    <span id="pendingCount">0</span> Pending Orders
+                </div>
+            </div>
+
+            <!-- Orders List -->
+            <div id="cafeOrdersContainer" class="cafe-orders-list">
+                <!-- Orders will be loaded here -->
+            </div>
+
+            <!-- Empty Orders Message -->
+            <div id="emptyCafeOrders" class="empty-cafe-orders">
+                <div class="empty-icon">📋</div>
+                <h2>No orders yet!</h2>
+                <p>New customer orders will appear here.</p>
+            </div>
+        </div>
+    </main>
+       <!-- Footer -->
+    <footer class="cafe-footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>Yellow KK Cafe</h3>
+                <p>Managing your cafe operations on Uni Bites</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Support</h3>
+                <a href="#">Cafe Guide</a>
+                <a href="#">Contact Support</a>
+                <a href="#">Update Schedule</a>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Business Info</h3>
+                <p>📍 Center of Campus, Block 52</p>
+                <p>📞 (251) 987-654-325</p>
+                <p>🕒 Open: 8:00 AM - 8:00 PM</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Uni Bites Cafe Dashboard • Yellow KK Cafe</p>
+        </div>
+    </footer>
+    <script src="js/order.js"></script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafe Menu Management - Uni Bites</title>
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="icon" href="Images/uni bites favicon.png" type="image/png">
+</head>
+<body>
+  <!-- Navigation Bar -->
+    <nav class="nav">
+        <div class="nav-logo">
+            <img src="Images/uni bites logo Transpareent.png" alt="Uni-Bites Logo">
+               <span>Uni-Bites</span>
+        </div>
+     
+        <div class="nav-links">
+            <a  href="cafe-home.html">Home</a>
+            <a class="active" href="menu.html">Menu</a>
+            <a href="order.html">Order</a>
+            <a href="cafe-owner-account.html">Account</a>
+        </div>
+    </nav>
+
+    <main class="dashboard-main">
+        <!-- Cafe Selection -->
+        <div class="cafe-selector">
+            <h1>Menu Management Dashboard</h1>
+            <div class="cafe-selection">
+                <label for="cafeSelect">Select Your Cafe:</label>
+                <select id="cafeSelect">
+                    <option value="kk-green">KK Green</option>
+                    <option value="central">Central</option>
+                    <option value="kk-yellow">KK Yellow</option>
+                    <option value="kibnesh">Kibnesh</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Add New Item Section -->
+        <div class="add-item-section">
+            <h2>Add New Menu Item</h2>
+            <form id="addItemForm" class="item-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="itemName">Item Name *</label>
+                        <input type="text" id="itemName" required placeholder="e.g., Ethiopian Coffee">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemPrice">Price (Birr) *</label>
+                        <input type="number" id="itemPrice" step="0.01" required placeholder="e.g., 25.00">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="itemCategory">Category *</label>
+                        <select id="itemCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="dinner">Dinner</option>
+                            <option value="snack">Snacks</option>
+                            <option value="beverage">Beverages</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemAvailable">Availability</label>
+                        <select id="itemAvailable">
+                            <option value="true">Available</option>
+                            <option value="false">Unavailable</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemDescription">Description *</label>
+                    <textarea id="itemDescription" required placeholder="Describe your menu item..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemImage">Image URL (optional)</label>
+                    <input type="url" id="itemImage" placeholder="https://example.com/image.jpg">
+                </div>
+                
+                <button type="submit" class="add-btn">Add Menu Item</button>
+            </form>
+        </div>
+
+        <!-- Current Menu Items -->
+        <div class="menu-items-section">
+            <h2>Your Menu Items</h2>
+            <div class="items-filter">
+                <select id="filterCategory">
+                    <option value="">All Categories</option>
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snack">Snacks</option>
+                    <option value="beverage">Beverages</option>
+                </select>
+                <select id="filterAvailability">
+                    <option value="">All Items</option>
+                    <option value="true">Available Only</option>
+                    <option value="false">Unavailable Only</option>
+                </select>
+            </div>
+            
+            <div id="menuItemsList" class="menu-items-table">
+                <!-- Menu items will be loaded here -->
+            </div>
+        </div>
+    </main>
+     <!-- Footer -->
+    <footer class="cafe-footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>Yellow KK Cafe</h3>
+                <p>Managing your cafe operations on Uni Bites</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Support</h3>
+                <a href="#">Cafe Guide</a>
+                <a href="#">Contact Support</a>
+                <a href="#">Update Schedule</a>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Business Info</h3>
+                <p>📍 Center of Campus, Block 52</p>
+                <p>📞 (251) 987-654-325</p>
+                <p>🕒 Open: 8:00 AM - 8:00 PM</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Uni Bites Cafe Dashboard • Yellow KK Cafe</p>
+        </div>
+    </footer>
+
+    <script src="js/menu.js"></script>
+</body>
+</html>

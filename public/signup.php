@@ -1,85 +1,95 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Sign Up - UniBites</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .form-container { background: white; padding: 2rem; border-radius: 8px; width: 100%; max-width: 400px; }
-        h2 { text-align: center; margin-bottom: 1.5rem; }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.4rem; font-weight: bold; }
-        input, select { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
-        button { width: 100%; padding: 0.75rem; background: #e67e22; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; margin-top: 0.5rem; }
-        .error { color: red; font-size: 0.85rem; }
-        .signup-link { text-align: center; margin-top: 1rem; }
-        .signup-link a { color: #e67e22; }
-    </style>
-</head>
-<body>
-<div class="form-container">
-    <h2>Create Account</h2>
+<?php
+session_start();
+require_once __DIR__ . "/../repositories/UserRepository.php";
 
-    <?php
-    session_start();
+// Only process on POST
+if ($_SERVER["REQUEST_METHOD"] !== "POST" || !isset($_POST["register"])) {
+    header("Location: ../Frontend/student-register.html");
+    exit;
+}
 
-    // show errors if any were passed back from AuthService
-    $errors = array();
-    if (isset($_SESSION["errors"])) {
-        $errors = $_SESSION["errors"];
-        $_SESSION["errors"] = array();
-    }
+$username = trim($_POST["username"] ?? "");
+$email    = trim($_POST["email"]    ?? "");
+$password = trim($_POST["password"] ?? "");
+$role     = trim($_POST["role"]     ?? "");
 
-    // if the form was submitted, send data to AuthService to handle
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        require_once "../services/AuthService.php";
-        // TODO: call register() once AuthService is complete
-    }
-    ?>
+$errors = [];
 
-    <form method="POST" action="signup.php">
+// Validation
+if ($username === "") $errors[] = "Username is required.";
 
-        <div class="form-group">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" placeholder="Enter your full name">
-            <?php if (isset($errors["name"])) { echo "<span class='error'>" . $errors["name"] . "</span>"; } ?>
+if ($email === "") {
+    $errors[] = "Email is required.";
+} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errors[] = "Invalid email format.";
+}
+
+if ($password === "") {
+    $errors[] = "Password is required.";
+} elseif (strlen($password) < 6) {
+    $errors[] = "Password must be at least 6 characters.";
+}
+
+if (!in_array($role, ["student", "cafe", "admin"])) {
+    $errors[] = "Invalid role.";
+}
+
+// Duplicate checks
+if (empty($errors)) {
+    if (getUserByEmail($email))    $errors[] = "An account with that email already exists.";
+    if (getUserByUsername($username)) $errors[] = "That username is already taken.";
+}
+
+// Determine which page to go back to
+$returnPages = [
+    "student" => "../Frontend/student-register.html",
+    "cafe"    => "../Frontend/cafe-register.html",
+    "admin"   => "../Frontend/admin-register.html",
+];
+$returnPage = $returnPages[$role] ?? "../Frontend/student-register.html";
+
+if (!empty($errors)) {
+    showMessage(implode("<br>", $errors), "error", $returnPage);
+    exit;
+}
+
+// Create user
+createUser($username, $email, $password, $role);
+showMessage("Registration successful! You can now log in.", "success", $returnPage);
+exit;
+
+// -------------------------------------------------------
+// Inline message page — no redirect to static HTML needed
+// -------------------------------------------------------
+function showMessage($message, $type, $backUrl) {
+    $color     = $type === "success" ? "#2ecc71" : "#e74c3c";
+    $bgColor   = $type === "success" ? "#eafaf1" : "#fdf0ef";
+    $title     = $type === "success" ? "Success" : "Error";
+    $autoRedir = $type === "success" ? "<p style='color:#888;font-size:0.85rem'>Redirecting in 3 seconds...</p>
+    <script>setTimeout(()=>location.href='" . htmlspecialchars($backUrl) . "',3000);</script>" : "";
+    echo <<<HTML
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{$title} - UniBites</title>
+        <style>
+            body { font-family: Arial, sans-serif; background: #f4f4f4;
+                   display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+            .box { background: {$bgColor}; border: 1px solid {$color}; border-radius: 8px;
+                   padding: 2rem 2.5rem; max-width: 420px; text-align: center; }
+            .box p.msg { color: {$color}; font-size: 1rem; margin-bottom: 1rem; }
+            a { display: inline-block; margin-top: 0.5rem; padding: 0.6rem 1.4rem;
+                background: #e67e22; color: #fff; border-radius: 4px; text-decoration: none; font-size: 0.95rem; }
+        </style>
+    </head>
+    <body>
+        <div class="box">
+            <p class="msg">{$message}</p>
+            <a href="{$backUrl}">Go back</a>
+            {$autoRedir}
         </div>
-
-        <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" placeholder="Enter your email">
-            <?php if (isset($errors["email"])) { echo "<span class='error'>" . $errors["email"] . "</span>"; } ?>
-        </div>
-
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Minimum 8 characters">
-            <?php if (isset($errors["password"])) { echo "<span class='error'>" . $errors["password"] . "</span>"; } ?>
-        </div>
-
-        <div class="form-group">
-            <label for="confirm_password">Confirm Password</label>
-            <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat your password">
-            <?php if (isset($errors["confirm_password"])) { echo "<span class='error'>" . $errors["confirm_password"] . "</span>"; } ?>
-        </div>
-
-        <div class="form-group">
-            <label for="role">Role</label>
-            <select id="role" name="role">
-                <option value="">-- Select Role --</option>
-                <option value="student">Student</option>
-                <option value="staff">Staff</option>
-                <option value="admin">Admin</option>
-            </select>
-            <?php if (isset($errors["role"])) { echo "<span class='error'>" . $errors["role"] . "</span>"; } ?>
-        </div>
-
-        <button type="submit">Sign Up</button>
-    </form>
-
-    <div class="signup-link">
-        Already have an account? <a href="login.php">Log in</a>
-    </div>
-</div>
-</body>
-</html>
+    </body>
+    </html>
+    HTML;
+}

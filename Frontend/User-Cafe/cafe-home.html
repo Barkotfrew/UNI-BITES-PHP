@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafe Dashboard - Uni Bites</title>
+    <link rel="stylesheet" href="css/cafe-home.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="uni bites logo Transpareent.png">
+</head>
+<body>
+  <!-- Navigation Bar -->
+    <nav class="nav">
+        <div class="nav-logo">
+            <img src="Images/uni bites logo Transpareent.png" alt="Uni-Bites Logo">
+               <span>Uni-Bites</span>
+        </div>
+     
+        <div class="nav-links">
+            <a class="active" href="cafe-home.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="order.html">Order</a>
+            <a href="cafe-owner-account.html">Account</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="cafe-main container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div>
+                <h1>Yellow KK Cafe</h1>
+                <p>Welcome back! Here's today's overview</p>
+            </div>
+            <div class="status">
+                <div>Business Hours: 8AM - 8PM</div>
+                <div class="open">● Open for Orders</div>
+            </div>
+        </div>
+
+        <!-- Cafe Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div class="value">12</div>
+                <div>Pending Orders</div>
+            </div>
+            
+            <div class="stat-card">
+                <i class="fas fa-dollar-sign"></i>
+                <div class="value">$1,240</div>
+                <div>Today's Revenue</div>
+            </div>
+        
+            <div class="stat-card">
+                <i class="fas fa-utensils"></i>
+                <div class="value">42</div>
+                <div>Menu Items</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="actions">
+            <a href="menu.html" class="action-btn">
+                <i class="fas fa-plus-circle"></i>
+                Add Menu Item
+            </a>
+
+            <a href="order.html" class="action-btn">
+                <i class="fas fa-list"></i>
+                View All Orders
+            </a>
+        </div>
+
+        <!-- Live Orders -->
+        <div class="live-orders">
+            <div class="order-header">
+                <h2>Some Orders</h2>
+            </div>
+            
+            <div class="order-list">
+                <div class="order-item">
+                    <div>
+                        <strong>Order #1024 - Arsema.s</strong>
+                        <p>2x Erteb, 1x Firfir, 1x Coke</p>
+                        <small>Placed: 5 minutes ago</small>
+                    </div>
+                    <span class="badge new">NEW</span>
+                    <button class="btn prep">Start Prep</button>
+                </div>
+                
+                <div class="order-item">
+                    <div>
+                        <strong>Order #1023 - Sarah T.</strong>
+                        <p>1x Firfir, 2x Misir Wet</p>
+                        <small>Placed: 12 minutes ago</small>
+                    </div>
+                    <span class="badge preparing">PREPARING</span>
+                    <button class="btn ready">Mark Ready</button>
+                </div>
+                
+                <div class="order-item">
+                    <div>
+                        <strong>Order #1022 - Baekot F.</strong>
+                        <p>3x Beyaynet Combo</p>
+                        <small>Placed: 25 minutes ago</small>
+                    </div>
+                    <span class="badge ready-badge">READY</span>
+                    <button class="btn done">Pickup Done</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Menu Items -->
+        <h2 class="section-title">Top Menu Items Today</h2>
+        <div class="menu-preview">
+            <div class="menu-item">
+                <div class="name">Erteb</div>
+                <div class="price">60 Birr</div>
+                <div class="status available">Available</div>
+                <small>Sold: 50</small>
+            </div>
+            
+            <div class="menu-item">
+                <div class="name">Firfir</div>
+                <div class="price">100 Birr</div>
+                <div class="status available">Available</div>
+                <small>Sold: 18</small>
+            </div>
+            
+            <div class="menu-item">
+                <div class="name">Denech Wet</div>
+                <div class="price">110 Birr</div>
+                <div class="status available">Available</div>
+                <small>Sold: 15</small>
+            </div>
+            
+            <div class="menu-item">
+                <div class="name">Pasta with Tomato Sauce</div>
+                <div class="price">90 Birr</div>
+                <div class="status soldout">Sold Out</div>
+                <small>Sold: 42</small>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="cafe-footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>Yellow KK Cafe</h3>
+                <p>Managing your cafe operations on Uni Bites</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Support</h3>
+                <a href="#">Cafe Guide</a>
+                <a href="#">Contact Support</a>
+                <a href="#">Update Schedule</a>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Business Info</h3>
+                <p>📍 Center of Campus, Block 52</p>
+                <p>📞 (251) 987-654-325</p>
+                <p>🕒 Open: 8:00 AM - 8:00 PM</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Uni Bites Cafe Dashboard • Yellow KK Cafe</p>
+        </div>
+    </footer>
+    <script src="js/cafe-home.js"></script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+/* =======================================
+   BODY & GLOBAL STYLES
+======================================= */
+body {
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  background: linear-gradient(135deg, #f3e8df, #efe1d6);
+  color: #3b2a28;
+}
+
+/* =======================================
+   NAVBAR
+======================================= */
+.nav {
+  background: #3b2a28;
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.nav-logo img {
+  height: 40px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.nav-logo span {
+  font-size: 18px;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.nav-links a.active {
+  background-color: #d4b3a7;
+  color: #3b2a28;
+}
+
+/* =======================================
+   MAIN CONTAINER
+======================================= */
+.account-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+/* =======================================
+   PROFILE CARD
+======================================= */
+.profile-card {
+  background: linear-gradient(160deg, #d4b3a7, #f5dcc8);
+  border-radius: 20px;
+  padding: 35px;
+  text-align: center;
+  box-shadow: 0 15px 30px rgba(59, 42, 40, 0.25);
+}
+
+.profile-card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+  object-fit: cover;
+  border: 2px solid #3b2a28;
+}
+
+.profile-card h2 {
+  margin: 10px 0 5px;
+}
+
+.profile-card p {
+  opacity: 0.85;
+}
+
+/* =======================================
+   SIDE SECTION (INFO + EDIT FORM)
+======================================= */
+.side-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* =======================================
+   ACCOUNT SECTION (INFO & EDIT)
+======================================= */
+.account-section {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 12px 24px rgba(59, 42, 40, 0.15);
+}
+
+.account-section h3 {
+  margin-bottom: 20px;
+  color: #3b2a28;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* =======================================
+   FORM STYLING
+======================================= */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #3b2a28;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #d6c2b6;
+  font-size: 14px;
+}
+
+/* =======================================
+   INFO ROW
+======================================= */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #e6d3c4;
+  font-size: 15px;
+}
+
+.info-row span {
+  font-weight: 600;
+}
+
+/* =======================================
+   STATS GRID
+======================================= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.stat-card {
+  background: #eee;
+  padding: 18px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 12px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 12px rgba(64, 50, 52, 0.3);
+}
+
+.stat-card .stat-value {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+/* =======================================
+   BUTTONS
+======================================= */
+.btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #3b2a28, #5a3c37);
+  color: white;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(59, 42, 40, 0.35);
+}
+
+/* =======================================
+   RESPONSIVE
+======================================= */
+@media (max-width: 900px) {
+  .side-section {
+    grid-template-columns: 1fr;
+  }
+  .account-container {
+    gap: 25px;
+  }
+}

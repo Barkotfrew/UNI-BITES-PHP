@@ -1,20 +1,38 @@
 <?php
 
-// get the database connection
-$conn = require_once "../config/db.php";
+$pdo = require_once __DIR__ . "/../config/db.php";
 
-// createUser() saves a new user to the database
-function createUser($name, $email, $password, $role) {
-    global $conn;
+// Create users table if it doesn't exist
+$pdo->exec("
+    CREATE TABLE IF NOT EXISTS users (
+        id         INT AUTO_INCREMENT PRIMARY KEY,
+        username   VARCHAR(100) NOT NULL,
+        email      VARCHAR(100) NOT NULL UNIQUE,
+        password   VARCHAR(255) NOT NULL,
+        role       VARCHAR(50)  NOT NULL
+    ) ENGINE=InnoDB
+");
 
-    // TODO: insert the user into the users table
-    // this will be completed once the database table is ready
+function createUser($username, $email, $password, $role) {
+    global $pdo;
+    $hashed = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare(
+        "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)"
+    );
+    $stmt->execute([$username, $email, $hashed, $role]);
+    return $pdo->lastInsertId();
 }
 
-// getUserByEmail() finds a user by their email address
 function getUserByEmail($email) {
-    global $conn;
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+    $stmt->execute([$email]);
+    return $stmt->fetch();
+}
 
-    // TODO: query the users table for a matching email
-    // this will be completed once the database table is ready
+function getUserByUsername($username) {
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
+    $stmt->execute([$username]);
+    return $stmt->fetch();
 }
