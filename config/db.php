@@ -1,17 +1,19 @@
 <?php
+// Database configuration
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'unibites');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$database = "unibites";
-
-// Create connection
-$conn = new mysqli($host, $user, $password, $database);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// PDO connection
+try {
+    $pdo = new PDO(
+        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8",
+        DB_USER,
+        DB_PASS
+    );
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
 }
-
-// RETURN connection (important for your structure)
-return $conn;
