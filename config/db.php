@@ -1,7 +1,7 @@
 <?php
 class Database {
     private $host = "localhost";
-    private $db_name = "unibites"; // change this
+    private $db_name = "unibites";
     private $username = "root";
     private $password = "";
 
@@ -25,3 +25,4 @@ class Database {
     }
 }
 ?>
+
