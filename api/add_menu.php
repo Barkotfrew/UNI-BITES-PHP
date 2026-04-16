@@ -1,21 +1,55 @@
 <?php
 header("Content-Type: application/json");
-require_once "../config/db.php";
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 
-$data = json_decode(file_get_contents("php://input"), true);
-
-$name = $data['name'];
-$description = $data['description'];
-$price = $data['price'];
-$category = $data['category'];
-$cafe = $data['cafe'];
-$image = $data['image'];
-
-$stmt = $conn->prepare("INSERT INTO menu_items (name, description, price, category, cafe, image) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssdsss", $name, $description, $price, $category, $cafe, $image);
-
-if ($stmt->execute()) {
-    echo json_encode(["status" => "success"]);
-} else {
-    echo json_encode(["status" => "error"]);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
 }
+
+include_once("../config/db.php");
+
+$database = new Database();
+$db = $database->connect();
+
+$data = json_decode(file_get_contents("php://input"));
+
+if (!$data) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Invalid JSON data"
+    ]);
+    exit();
+}
+
+$name = isset($data->name) ? trim($data->name) : "";
+$description = isset($data->description) ? trim($data->description) : "";
+$price = isset($data->price) ? $data->price : 0;
+$available = isset($data->available) ? (int)$data->available : 1;
+$cafe = isset($data->cafe) ? trim($data->cafe) : "";
+$category = isset($data->category) ? trim($data->category) : "breakfast";
+$image_url = isset($data->image_url) ? trim($data->image_url) : "";
+
+
+
+try {
+    $sql = "INSERT INTO products (name, description, price, available, cafe, category, image_url)
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$name, $description, $price, $available, $cafe, $category, $image_url]);
+
+    echo json_encode([
+        "status" => "success",
+        "message" => "Product added successfully"
+    ]);
+
+} catch (Exception $e) {
+    echo json_encode([
+        "status" => "error",
+        "message" => $e->getMessage()
+    ]);
+}
+?>

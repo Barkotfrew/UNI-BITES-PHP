@@ -1,15 +1,38 @@
 <?php
 header("Content-Type: application/json");
-require_once "../config/db.php";
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 
-$data = json_decode(file_get_contents("php://input"), true);
-$id = $data['id'];
-
-$stmt = $conn->prepare("DELETE FROM menu_items WHERE id=?");
-$stmt->bind_param("i", $id);
-
-if ($stmt->execute()) {
-    echo json_encode(["status" => "success"]);
-} else {
-    echo json_encode(["status" => "error"]);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
 }
+
+include_once("../config/db.php");
+
+$database = new Database();
+$db = $database->connect();
+
+$data = json_decode(file_get_contents("php://input"));
+
+$id = $data->id;
+
+try {
+    $sql = "DELETE FROM products WHERE id=?";
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$id]);
+
+    echo json_encode([
+        "status" => "success",
+        "message" => "Product deleted successfully"
+    ]);
+
+} catch (Exception $e) {
+    echo json_encode([
+        "status" => "error",
+        "message" => $e->getMessage()
+    ]);
+}
+?>

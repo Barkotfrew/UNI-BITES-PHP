@@ -34,26 +34,23 @@ class CustomerMenu {
             }
             
             // Fetch recipes from DummyJSON API
-            const response = await fetch('https://dummyjson.com/recipes?limit=20');
-            const data = await response.json();
-            
-            // Transform API data to menu items
-            const apiItems = data.recipes.map(recipe => ({
-                id: `api-${recipe.id}`,
-                name: recipe.name,
-                description: recipe.instructions[0] || 'Delicious food item',
-                price: Math.floor(Math.random() * 200) + 50,
-                category: this.categorizeRecipe(recipe),
-                cafe: this.assignRandomCafe(),
-                image: recipe.image,
-                prepTime: recipe.prepTime,
-                difficulty: recipe.difficulty,
-                cuisine: recipe.cuisine,
-                rating: recipe.rating,
-                available: true,
-                isFromAPI: true
-            }));
+           const response = await fetch('http://localhost/UNI-BITES-PHP/api/get_menu.php');
+const result = await response.json();
 
+// 🔥 IMPORTANT: backend wraps data inside "data"
+const data = Array.isArray(result) ? result : result.data || [];
+
+
+const apiItems = data.map(item => ({
+    id: item.id,
+    name: item.name,
+    description: item.description || 'Delicious food item',
+    price: item.price,
+    category: item.category || 'lunch',
+    cafe: item.cafe,
+    image: item.image_url,
+    available: item.available == 1
+}));
             // Add some local Ethiopian items
             const localItems = [
                 {
@@ -153,7 +150,7 @@ class CustomerMenu {
         }
         
         const menuHTML = `
-            <div class="menu-grid">
+            
                 ${items.map(item => `
                     <div class="menu-item-card">
                         <img src="${item.image}" alt="${item.name}" class="menu-item-image" 
@@ -171,7 +168,7 @@ class CustomerMenu {
                         </div>
                     </div>
                 `).join('')}
-            </div>
+            
         `;
         
         container.innerHTML = menuHTML;
@@ -188,31 +185,27 @@ class CustomerMenu {
     }
 
     addToCart(itemId) {
-        const item = this.menuItems.find(i => i.id === itemId);
-        if (!item) return;
-        
-        // Get existing cart from localStorage
-        let cart = JSON.parse(localStorage.getItem('uniBitesCart') || '[]');
-        
-        // Check if item already exists in cart
-        const existingItem = cart.find(cartItem => cartItem.id === itemId);
-        
-        if (existingItem) {
-            existingItem.quantity += 1;
-        } else {
-            cart.push({
-                ...item,
-                quantity: 1,
-                addedAt: new Date().toISOString()
-            });
-        }
-        
-        // Save updated cart
-        localStorage.setItem('uniBitesCart', JSON.stringify(cart));
-        
-        // Show feedback
-        this.showNotification(`${item.name} added to cart!`);
+    const item = this.menuItems.find(i => String(i.id) === String(itemId));
+    if (!item) return;
+
+    let cart = JSON.parse(localStorage.getItem('uniBitesCart') || '[]');
+
+    const existingItem = cart.find(cartItem => String(cartItem.id) === String(itemId));
+
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({
+            ...item,
+            quantity: 1,
+            addedAt: new Date().toISOString()
+        });
     }
+
+    localStorage.setItem('uniBitesCart', JSON.stringify(cart));
+    this.showNotification(`${item.name} added to cart!`);
+}
+
 
     showNotification(message) {
         const notification = document.createElement('div');
