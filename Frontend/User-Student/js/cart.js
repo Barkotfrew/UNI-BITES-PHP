@@ -4,8 +4,8 @@ class ShoppingCart {
     this.init();
   }
 
-  init() {
-    this.loadCart();
+  async init() {
+    await this.loadCart();
     this.setupEventListeners();
     this.displayCart();
   }
@@ -33,19 +33,27 @@ class ShoppingCart {
     }
   }
 
-  loadCart() {
-    const savedCart = localStorage.getItem("uniBitesCart");
-    console.log("Loading cart from localStorage:", savedCart);
-    if (savedCart) {
-      this.cart = JSON.parse(savedCart);
-      console.log("Parsed cart:", this.cart);
-    } else {
-      console.log("No saved cart found");
-    }
-  }
+  async loadCart() {
+    try {
+      const response = await fetch("../../public/cart.php?action=view", {
+        credentials: "same-origin",
+      });
+      const data = await response.json();
 
-  saveCart() {
-    localStorage.setItem("uniBitesCart", JSON.stringify(this.cart));
+      if (response.status === 401) {
+        console.warn("Cart view unauthorized:", data);
+        this.showNotification("Please log in to view your cart.");
+        this.cart = [];
+        return;
+      }
+
+      console.log("Cart from server:", data);
+      this.cart =
+        data.data?.cart || data.data?.items || data.cart || data.items || [];
+    } catch (error) {
+      console.error("Error loading cart:", error);
+      this.cart = [];
+    }
   }
 
   displayCart() {
@@ -94,16 +102,16 @@ class ShoppingCart {
       .map(
         (item) => `
             <div class="cart-item">
-                <img src="${item.image}" alt="${
-          item.name
-        }" class="cart-item-image" 
+                <img src="${item.image_url}" alt="${
+                  item.name
+                }" class="cart-item-image" 
                      onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'">
                 
                 <div class="cart-item-info">
                     <div class="cart-item-name">${item.name}</div>
                     <div class="cart-item-description">${item.description}</div>
                     <div class="cart-item-cafe">${this.getCafeName(
-                      item.cafe
+                      item.cafe,
                     )}</div>
                 </div>
                 
@@ -127,7 +135,7 @@ class ShoppingCart {
                     }')">Remove</button>
                 </div>
             </div>
-        `
+        `,
       )
       .join("");
 
@@ -152,90 +160,74 @@ class ShoppingCart {
     return cafeNames[cafeId] || cafeId;
   }
 
-  updateQuantity(itemId, newQuantity) {
+  saveCart() {
+    // Cart is stored server-side; no client-side save required here.
+  }
+
+  async updateQuantity(itemId, newQuantity) {
     if (newQuantity <= 0) {
-      this.removeItem(itemId);
+      await this.removeItem(itemId);
       return;
     }
 
-    const item = this.cart.find((item) => item.id === itemId);
-    if (item) {
-      item.quantity = newQuantity;
-      this.saveCart();
+    try {
+      await fetch("../../public/cart.php?action=update", {
+        method: "PUT",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cart_item_id: itemId,
+          quantity: newQuantity,
+        }),
+      });
+
+      await this.loadCart();
       this.displayCart();
+    } catch (error) {
+      console.error("Error updating quantity:", error);
     }
   }
 
-  removeItem(itemId) {
-    this.cart = this.cart.filter((item) => item.id !== itemId);
-    this.saveCart();
-    this.displayCart();
-    this.showNotification("Item removed from cart");
+  async removeItem(itemId) {
+    try {
+      await fetch("../../public/cart.php?action=remove", {
+        method: "DELETE",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cart_item_id: itemId,
+        }),
+      });
+
+      await this.loadCart();
+      this.displayCart();
+      this.showNotification("Item removed from cart");
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
   }
 
   updateSummary() {
     const subtotal = this.cart.reduce(
       (sum, item) => sum + item.price * item.quantity,
-      0
+      0,
     );
 
     document.getElementById("subtotal").textContent = `${subtotal.toFixed(
-      2
+      2,
     )} Birr`;
   }
 
-  checkout() {
-    const orderNotes = document.getElementById("orderNotes").value;
-
+  async checkout() {
     if (this.cart.length === 0) {
-        alert("Your cart is empty");
-        return;
+      alert("Your cart is empty");
+      return;
     }
 
-    // Create order
-    const order = {
-        id: `ORD-${Date.now()}`,
-        items: [...this.cart],
-        subtotal: this.cart.reduce(
-            (sum, item) => sum + item.price * item.quantity,
-            0
-        ),
-        notes: orderNotes,
-        status: "pending",
-        timestamp: new Date().toISOString(),
-        customerName: "Student User", // In a real app, this would come from user authentication
-        cafe: this.cart[0]?.cafe || "unknown" // Get cafe from first item
-    };
-
-    // Save order to localStorage (in a real app, this would be sent to a server)
-    let orders = JSON.parse(localStorage.getItem("uniBitesOrders") || "[]");
-    orders.push(order);
-    localStorage.setItem("uniBitesOrders", JSON.stringify(orders));
-
-    // Also save to cafe dashboard orders
-    let cafeOrders = JSON.parse(
-        localStorage.getItem("cafeDashboardOrders") || "[]"
-    );
-    cafeOrders.push(order);
-    localStorage.setItem("cafeDashboardOrders", JSON.stringify(cafeOrders));
-
-    // Trigger order notification if notification.js is loaded
-    if (window.addOrderNotification) {
-        window.addOrderNotification(order);
-    }
-
-    // Clear cart
-    this.cart = [];
-    this.saveCart();
-
-    // Show success message
-    this.showOrderConfirmation(order);
-
-    // Redirect to orders page after a delay
-    setTimeout(() => {
-        window.location.href = "orders.html";
-    }, 3000);
-}
+    this.showNotification("Checkout is not implemented in this version.");
+  }
 
   showOrderConfirmation(order) {
     const confirmation = document.createElement("div");
@@ -246,7 +238,7 @@ class ShoppingCart {
                 <h2>Order Placed Successfully!</h2>
                 <p><strong>Order ID:</strong> ${order.id}</p>
                 <p><strong>Subtotal:</strong> ${order.subtotal.toFixed(
-                  2
+                  2,
                 )} Birr</p>
                 
                 <p>You will be redirected to your orders page...</p>
@@ -324,7 +316,7 @@ function initCartIcon() {
     cartIcon.addEventListener("click", () => {
       if (window.shoppingCart) {
         shoppingCart.showNotification(
-          "🛒 Add some delicious items to get started!"
+          "🛒 Add some delicious items to get started!",
         );
       }
     });
@@ -371,10 +363,14 @@ function initCartActions() {
   const saveBtn = document.getElementById("saveForLaterBtn");
 
   if (clearBtn) {
-    clearBtn.addEventListener("click", () => {
+    clearBtn.addEventListener("click", async () => {
       if (confirm("Clear all items from cart?")) {
-        shoppingCart.cart = [];
-        shoppingCart.saveCart();
+        await fetch("../../public/cart.php?action=clear", {
+          method: "DELETE",
+          credentials: "same-origin",
+        });
+
+        await shoppingCart.loadCart();
         shoppingCart.displayCart();
         shoppingCart.showNotification("🗑️ Cart cleared!");
       }
