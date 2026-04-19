@@ -13,7 +13,10 @@ class CartController {
     // GET /cart.php?action=view
     public function view(int $userId): void {
         $cart = $this->service->getCart($userId);
-        sendResponse(200, 'Cart retrieved', $cart);
+        sendResponse(200, 'Cart retrieved', [
+            'cart' => $cart['items'],
+            'total' => $cart['total'],
+        ]);
     }
 
     // POST /cart.php?action=add  body: { product_id, quantity }
@@ -68,3 +71,4 @@ class CartController {
         return json_decode($raw, true) ?? [];
     }
 }
+?>
