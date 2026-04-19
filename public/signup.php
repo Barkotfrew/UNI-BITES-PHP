@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once __DIR__ . "/../repositories/UserRepository.php";
+require_once __DIR__ . "/../controllers/AuthController.php";
+require_once __DIR__ . "/../services/AuthService.php";
 
 // Only process on POST
 if ($_SERVER["REQUEST_METHOD"] !== "POST" || !isset($_POST["register"])) {
@@ -8,39 +9,12 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST" || !isset($_POST["register"])) {
     exit;
 }
 
-$username = trim($_POST["username"] ?? "");
+$username = sanitizeInput($_POST["username"] ?? "");
 $email    = trim($_POST["email"]    ?? "");
 $password = trim($_POST["password"] ?? "");
 $role     = trim($_POST["role"]     ?? "");
 
-$errors = [];
-
-// Validation
-if ($username === "") $errors[] = "Username is required.";
-
-if ($email === "") {
-    $errors[] = "Email is required.";
-} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $errors[] = "Invalid email format.";
-}
-
-if ($password === "") {
-    $errors[] = "Password is required.";
-} elseif (strlen($password) < 6) {
-    $errors[] = "Password must be at least 6 characters.";
-}
-
-if (!in_array($role, ["student", "cafe", "admin"])) {
-    $errors[] = "Invalid role.";
-}
-
-// Duplicate checks
-if (empty($errors)) {
-    if (getUserByEmail($email))    $errors[] = "An account with that email already exists.";
-    if (getUserByUsername($username)) $errors[] = "That username is already taken.";
-}
-
-// Determine which page to go back to
+// Determine return page
 $returnPages = [
     "student" => "../Frontend/student-register.html",
     "cafe"    => "../Frontend/cafe-register.html",
@@ -48,13 +22,13 @@ $returnPages = [
 ];
 $returnPage = $returnPages[$role] ?? "../Frontend/student-register.html";
 
-if (!empty($errors)) {
-    showMessage(implode("<br>", $errors), "error", $returnPage);
+$result = signup($username, $email, $password, $role);
+
+if (!$result['success']) {
+    showMessage(implode("<br>", $result['errors']), "error", $returnPage);
     exit;
 }
 
-// Create user
-createUser($username, $email, $password, $role);
 showMessage("Registration successful! You can now log in.", "success", $returnPage);
 exit;
 

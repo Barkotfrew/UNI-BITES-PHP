@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once __DIR__ . "/../repositories/UserRepository.php";
+require_once __DIR__ . "/../controllers/AuthController.php";
+require_once __DIR__ . "/../services/AuthService.php";
 
 // Only process on POST
 if ($_SERVER["REQUEST_METHOD"] !== "POST" || !isset($_POST["login"])) {
@@ -8,14 +9,9 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST" || !isset($_POST["login"])) {
     exit;
 }
 
-$username = trim($_POST["username"] ?? "");
+$username = sanitizeInput($_POST["username"] ?? "");
 $password = trim($_POST["password"] ?? "");
 $role     = trim($_POST["role"]     ?? "");
-
-$errors = [];
-
-if ($username === "") $errors[] = "Username is required.";
-if ($password === "") $errors[] = "Password is required.";
 
 // Determine return page
 $returnPages = [
@@ -25,28 +21,24 @@ $returnPages = [
 ];
 $returnPage = $returnPages[$role] ?? "../Frontend/student-register.html";
 
-if (!empty($errors)) {
-    showMessage(implode("<br>", $errors), "error", $returnPage);
+$result = login($username, $password, $role);
+
+if (!$result['success']) {
+    showMessage(implode("<br>", $result['errors']), "error", $returnPage);
     exit;
 }
 
-// Look up user by username, fall back to email
-$user = getUserByUsername($username);
-if (!$user) {
-    $user = getUserByEmail($username);
-}
-
-if (!$user || !password_verify($password, $user["password"])) {
-    showMessage("Invalid username or password.", "error", $returnPage);
-    exit;
-}
-
-// Store session
-$_SESSION["user_id"]  = $user["id"];
-$_SESSION["username"] = $user["username"];
-$_SESSION["role"]     = $user["role"];
+$user = $result['user'];
 
 // Redirect to role dashboard
+$dashboards = [
+    "student" => "../Frontend/User-Student/index.html",
+    "cafe"    => "../Frontend/User-Cafe/cafe-home.html",
+    "admin"   => "../Frontend/User-Admin/Admin-home.html",
+];
+$destination = $dashboards[$user["role"]] ?? "../Frontend/role.html";
+header("Location: " . $destination);
+exit;
 $dashboards = [
     "student" => "../Frontend/User-Student/index.html",
     "cafe"    => "../Frontend/User-Cafe/cafe-home.html",
