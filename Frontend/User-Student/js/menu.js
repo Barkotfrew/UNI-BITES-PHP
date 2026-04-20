@@ -38,7 +38,7 @@ class CustomerMenu {
       );
       const result = await response.json();
 
-      // 🔥 IMPORTANT: backend wraps data inside "data"
+      // IMPORTANT: backend wraps data inside "data"
       const data = Array.isArray(result) ? result : result.data || [];
 
       const apiItems = data.map((item) => ({
@@ -171,39 +171,84 @@ class CustomerMenu {
     return cafeNames[cafeId] || cafeId;
   }
 
+  getUserId() {
+    const user = JSON.parse(
+      localStorage.getItem("currentStudentUser") || "null",
+    );
+    return user ? user.id : null;
+  }
+
+  buildCartPayload(extra = {}) {
+    const userId = this.getUserId();
+    return userId ? { ...extra, user_id: userId } : extra;
+  }
+
   async addToCart(itemId) {
     console.log("Clicked add to cart:", itemId);
+
+    const item = this.menuItems.find((i) => i.id == itemId);
+    if (!item) {
+      this.showNotification("Item not found");
+      return;
+    }
 
     try {
       const response = await fetch("../../public/cart.php?action=add", {
         method: "POST",
         credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          product_id: itemId,
-          quantity: 1,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          this.buildCartPayload({
+            product_id: itemId,
+            quantity: 1,
+          }),
+        ),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401) {
+          alert("Please log in first to add items to cart");
+          window.location.href = "../student-register.html";
+          return;
+        }
+
         throw new Error(data.message || "Failed to add item");
       }
 
-      // ✅ Success message
-      this.showNotification("🛒 Item added to cart!");
+      this.updateCartCount();
+      this.showNotification("Item added to cart!");
     } catch (error) {
       console.error("Add to cart error:", error);
+      this.showNotification("Failed to add item: " + error.message);
+    }
+  }
 
-      if (error.message.includes("Unauthorized")) {
-        alert("Please log in first");
-        window.location.href = "login.html";
-      } else {
-        this.showNotification("❌ Failed to add item");
+  async updateCartCount() {
+    const userId = this.getUserId();
+
+    try {
+      const query = userId ? `&user_id=${userId}` : "";
+      const response = await fetch(
+        `../../public/cart.php?action=view${query}`,
+        {
+          credentials: "same-origin",
+        },
+      );
+
+      if (!response.ok) {
+        return;
       }
+
+      const data = await response.json();
+      const totalItems = data.data?.total_items || 0;
+      const cartLink = document.querySelector('a[href="cart.html"]');
+      if (cartLink) {
+        cartLink.innerHTML = totalItems > 0 ? `Cart (${totalItems})` : "Cart";
+      }
+    } catch (error) {
+      console.error("Error updating cart count:", error);
     }
   }
 

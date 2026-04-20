@@ -14,8 +14,9 @@ class CartController {
     public function view(int $userId): void {
         $cart = $this->service->getCart($userId);
         sendResponse(200, 'Cart retrieved', [
-            'cart' => $cart['items'],
+            'items' => $cart['items'],
             'total' => $cart['total'],
+            'total_items' => $cart['total_items'],
         ]);
     }
 
@@ -37,13 +38,19 @@ class CartController {
     public function update(int $userId): void {
         $body       = $this->getJsonBody();
         $cartItemId = (int)($body['cart_item_id'] ?? 0);
+        $productId  = (int)($body['product_id'] ?? 0);
         $quantity   = (int)($body['quantity'] ?? 0);
 
-        if (!$cartItemId) {
-            sendResponse(400, 'cart_item_id is required');
+        if ($cartItemId) {
+            $result = $this->service->updateQuantity($userId, $cartItemId, $quantity);
+            sendResponse($result['success'] ? 200 : 400, $result['message']);
         }
 
-        $result = $this->service->updateQuantity($userId, $cartItemId, $quantity);
+        if (!$productId) {
+            sendResponse(400, 'cart_item_id or product_id is required');
+        }
+
+        $result = $this->service->updateQuantityByProduct($userId, $productId, $quantity);
         sendResponse($result['success'] ? 200 : 400, $result['message']);
     }
 
@@ -51,12 +58,18 @@ class CartController {
     public function remove(int $userId): void {
         $body       = $this->getJsonBody();
         $cartItemId = (int)($body['cart_item_id'] ?? 0);
+        $productId  = (int)($body['product_id'] ?? 0);
 
-        if (!$cartItemId) {
-            sendResponse(400, 'cart_item_id is required');
+        if ($cartItemId) {
+            $result = $this->service->removeFromCart($cartItemId, $userId);
+            sendResponse($result['success'] ? 200 : 404, $result['message']);
         }
 
-        $result = $this->service->removeFromCart($cartItemId, $userId);
+        if (!$productId) {
+            sendResponse(400, 'cart_item_id or product_id is required');
+        }
+
+        $result = $this->service->removeFromCartByProduct($productId, $userId);
         sendResponse($result['success'] ? 200 : 404, $result['message']);
     }
 

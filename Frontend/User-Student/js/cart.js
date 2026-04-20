@@ -1,7 +1,7 @@
 class ShoppingCart {
   constructor() {
     this.cart = [];
-    this.init();
+    // Don't call init here - it's called after DOMContentLoaded
   }
 
   async init() {
@@ -33,23 +33,48 @@ class ShoppingCart {
     }
   }
 
+  getUserId() {
+    // First check localStorage
+    const user = JSON.parse(
+      localStorage.getItem("currentStudentUser") || "null",
+    );
+    if (user && user.id) {
+      return user.id;
+    }
+
+    // Fallback: check URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlUserId = urlParams.get("user_id");
+    if (urlUserId) {
+      return parseInt(urlUserId);
+    }
+
+    return null;
+  }
+
+  buildCartPayload(extra = {}) {
+    const userId = this.getUserId();
+    return userId ? { ...extra, user_id: userId } : extra;
+  }
+
   async loadCart() {
+    const userId = this.getUserId();
+
     try {
-      const response = await fetch("../../public/cart.php?action=view", {
-        credentials: "same-origin",
-      });
+      const query = userId ? `&user_id=${userId}` : "";
+      const response = await fetch(
+        `../../public/cart.php?action=view${query}`,
+        {
+          credentials: "same-origin",
+        },
+      );
       const data = await response.json();
 
-      if (response.status === 401) {
-        console.warn("Cart view unauthorized:", data);
-        this.showNotification("Please log in to view your cart.");
+      if (response.ok && data.data) {
+        this.cart = data.data.items || [];
+      } else {
         this.cart = [];
-        return;
       }
-
-      console.log("Cart from server:", data);
-      this.cart =
-        data.data?.cart || data.data?.items || data.cart || data.items || [];
     } catch (error) {
       console.error("Error loading cart:", error);
       this.cart = [];
@@ -109,30 +134,21 @@ class ShoppingCart {
                 
                 <div class="cart-item-info">
                     <div class="cart-item-name">${item.name}</div>
-                    <div class="cart-item-description">${item.description}</div>
-                    <div class="cart-item-cafe">${this.getCafeName(
-                      item.cafe,
-                    )}</div>
+                    <div class="cart-item-price">${item.price} Birr</div>
                 </div>
                 
                 <div class="cart-item-controls">
                     <div class="quantity-controls">
-                        <button class="quantity-btn" onclick="shoppingCart.updateQuantity('${
-                          item.id
-                        }', ${item.quantity - 1})">-</button>
+                        <button class="quantity-btn" onclick="shoppingCart.updateQuantity('${item.product_id}', ${item.quantity - 1})">-</button>
                         <span class="quantity-display">${item.quantity}</span>
-                        <button class="quantity-btn" onclick="shoppingCart.updateQuantity('${
-                          item.id
-                        }', ${item.quantity + 1})">+</button>
+                        <button class="quantity-btn" onclick="shoppingCart.updateQuantity('${item.product_id}', ${item.quantity + 1})">+</button>
                     </div>
                     
                     <div class="cart-item-price">${(
                       item.price * item.quantity
                     ).toFixed(2)} Birr</div>
                     
-                    <button class="remove-btn" onclick="shoppingCart.removeItem('${
-                      item.id
-                    }')">Remove</button>
+                    <button class="remove-btn" onclick="shoppingCart.removeItem('${item.product_id}')">Remove</button>
                 </div>
             </div>
         `,
@@ -161,7 +177,7 @@ class ShoppingCart {
   }
 
   saveCart() {
-    // Cart is stored server-side; no client-side save required here.
+    // Cart is stored in database - no localStorage needed
   }
 
   async updateQuantity(itemId, newQuantity) {
@@ -171,16 +187,16 @@ class ShoppingCart {
     }
 
     try {
-      await fetch("../../public/cart.php?action=update", {
-        method: "PUT",
+      await fetch(`../../public/cart.php?action=update`, {
+        method: "POST",
         credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          cart_item_id: itemId,
-          quantity: newQuantity,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          this.buildCartPayload({
+            product_id: itemId,
+            quantity: newQuantity,
+          }),
+        ),
       });
 
       await this.loadCart();
@@ -192,13 +208,11 @@ class ShoppingCart {
 
   async removeItem(itemId) {
     try {
-      await fetch("../../public/cart.php?action=remove", {
-        method: "DELETE",
+      await fetch(`../../public/cart.php?action=remove`, {
+        method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cart_item_id: itemId,
-        }),
+        body: JSON.stringify(this.buildCartPayload({ product_id: itemId })),
       });
 
       await this.loadCart();
@@ -305,9 +319,10 @@ class ShoppingCart {
 }
 
 // Initialize shopping cart when page loads
-let shoppingCart;
+window.shoppingCart = null;
 document.addEventListener("DOMContentLoaded", () => {
-  shoppingCart = new ShoppingCart();
+  window.shoppingCart = new ShoppingCart();
+  window.shoppingCart.init();
 });
 // Simple cart icon click interaction
 function initCartIcon() {
@@ -365,14 +380,20 @@ function initCartActions() {
   if (clearBtn) {
     clearBtn.addEventListener("click", async () => {
       if (confirm("Clear all items from cart?")) {
-        await fetch("../../public/cart.php?action=clear", {
-          method: "DELETE",
-          credentials: "same-origin",
-        });
+        try {
+          await fetch(`../../public/cart.php?action=clear`, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(shoppingCart.buildCartPayload()),
+          });
 
-        await shoppingCart.loadCart();
-        shoppingCart.displayCart();
-        shoppingCart.showNotification("🗑️ Cart cleared!");
+          await shoppingCart.loadCart();
+          shoppingCart.displayCart();
+          shoppingCart.showNotification("🗑️ Cart cleared!");
+        } catch (error) {
+          console.error("Error clearing cart:", error);
+        }
       }
     });
   }

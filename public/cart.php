@@ -2,19 +2,43 @@
 
 session_start();
 header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
 
-require_once __DIR__ . '/../config/db.php';
+include_once(__DIR__ . '/../config/db.php');
 require_once __DIR__ . '/../utils/response.php';
 require_once __DIR__ . '/../repositories/CartRepository.php';
 require_once __DIR__ . '/../services/CartService.php';
 require_once __DIR__ . '/../controllers/CartController.php';
 
-// --- Auth check: user must be logged in ---
-if (empty($_SESSION['user_id'])) {
+// Create database connection
+$database = new Database();
+$conn = $database->connect();
+
+// --- Auth check: Check PHP session, query param, or request body ---
+$userId = null;
+
+// First check PHP session (for server-side auth)
+if (!empty($_SESSION['user_id'])) {
+    $userId = (int)$_SESSION['user_id'];
+}
+// Then check query parameter (for frontend API calls)
+elseif (!empty($_GET['user_id'])) {
+    $userId = (int)$_GET['user_id'];
+}
+// Finally check request body (for POST requests)
+else {
+    $input = json_decode(file_get_contents("php://input"), true);
+    if (!empty($input['user_id'])) {
+        $userId = (int)$input['user_id'];
+    }
+}
+
+if (empty($userId)) {
     sendResponse(401, 'Unauthorized. Please log in.');
 }
 
-$userId = (int)$_SESSION['user_id'];
 $action = $_GET['action'] ?? '';
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -31,15 +55,15 @@ switch ($action) {
         break;
 
     case 'update':
-        if ($method === 'PUT') $controller->update($userId);
+        if ($method === 'POST') $controller->update($userId);
         break;
 
     case 'remove':
-        if ($method === 'DELETE') $controller->remove($userId);
+        if ($method === 'POST') $controller->remove($userId);
         break;
 
     case 'clear':
-        if ($method === 'DELETE') $controller->clear($userId);
+        if ($method === 'POST') $controller->clear($userId);
         break;
 
     default:
