@@ -12,7 +12,8 @@ $pdo->exec("
         username   VARCHAR(100) NOT NULL,
         email      VARCHAR(100) NOT NULL UNIQUE,
         password   VARCHAR(255) NOT NULL,
-        role       VARCHAR(50)  NOT NULL
+        role       VARCHAR(50)  NOT NULL,
+        phone      VARCHAR(20)  DEFAULT NULL
     ) ENGINE=InnoDB
 ");
 
@@ -38,4 +39,19 @@ function getUserByUsername($username) {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
     $stmt->execute([$username]);
     return $stmt->fetch();
+}
+
+function getUserById($id) {
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT id, username, email, phone, role FROM users WHERE id = ? LIMIT 1");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function updateUser($id, $fields, $values) {
+    global $pdo;
+    $values[] = $id;
+    $stmt = $pdo->prepare("UPDATE users SET " . implode(", ", $fields) . " WHERE id = ?");
+    $stmt->execute($values);
+    return getUserById($id);
 }
