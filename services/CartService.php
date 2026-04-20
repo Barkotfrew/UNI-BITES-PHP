@@ -13,7 +13,8 @@ class CartService {
     public function getCart(int $userId): array {
         $items = $this->repo->getCartByUser($userId);
         $total = array_sum(array_column($items, 'subtotal'));
-        return ['items' => $items, 'total' => $total];
+        $totalItems = array_sum(array_column($items, 'quantity'));
+        return ['items' => $items, 'total' => $total, 'total_items' => $totalItems];
     }
 
     // Add item — increments quantity if already in cart
@@ -40,6 +41,16 @@ class CartService {
         return ['success' => $ok, 'message' => $ok ? 'Item removed' : 'Item not found'];
     }
 
+    // Remove item by product_id
+    public function removeFromCartByProduct(int $productId, int $userId): array {
+        $item = $this->repo->findItem($userId, $productId);
+        if (!$item) {
+            return ['success' => false, 'message' => 'Item not found'];
+        }
+        $ok = $this->repo->removeItem($item['id'], $userId);
+        return ['success' => $ok, 'message' => $ok ? 'Item removed' : 'Failed to remove'];
+    }
+
     // Update quantity directly (set, not increment)
     public function updateQuantity(int $userId, int $cartItemId, int $quantity): array {
         if ($quantity < 1) {
@@ -49,6 +60,22 @@ class CartService {
         }
 
         $ok = $this->repo->updateQuantity($cartItemId, $quantity);
+        return ['success' => $ok, 'message' => $ok ? 'Quantity updated' : 'Failed to update'];
+    }
+
+    // Update quantity by product_id
+    public function updateQuantityByProduct(int $userId, int $productId, int $quantity): array {
+        $item = $this->repo->findItem($userId, $productId);
+        if (!$item) {
+            return ['success' => false, 'message' => 'Item not found'];
+        }
+
+        if ($quantity < 1) {
+            $ok = $this->repo->removeItem($item['id'], $userId);
+            return ['success' => $ok, 'message' => 'Item removed from cart'];
+        }
+
+        $ok = $this->repo->updateQuantity($item['id'], $quantity);
         return ['success' => $ok, 'message' => $ok ? 'Quantity updated' : 'Failed to update'];
     }
 
