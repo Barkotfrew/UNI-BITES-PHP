@@ -19,7 +19,6 @@ if (empty($username) || empty($password)) {
 }
 
 try {
-    // Check by username or email
     $user = getUserByUsername($username);
     if (!$user) $user = getUserByEmail($username);
 
@@ -45,7 +44,6 @@ try {
             "id"       => $user['id'],
             "username" => $user['username'],
             "email"    => $user['email'],
-            "phone"    => $user['phone'] ?? null,
             "role"     => $user['role']
         ]
     ]);
@@ -53,4 +51,3 @@ try {
 } catch (Exception $e) {
     echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
 }
-?>

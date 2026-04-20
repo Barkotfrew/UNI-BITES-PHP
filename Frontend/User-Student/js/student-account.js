@@ -2,7 +2,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const currentUser = getCurrentUser();
     if (!currentUser) {
-        window.location.href = "../../index.html";
+        window.location.href = "../Landing-page.html";
         return;
     }
     loadUserProfile(currentUser);
@@ -15,36 +15,38 @@ function getCurrentUser() {
     return userStr ? JSON.parse(userStr) : null;
 }
 
+function avatarKey(user) {
+    return "avatar_" + (user.id || user.email);
+}
+
 function loadUserProfile(user) {
     const profileName = document.getElementById("profileName");
-    const profilePhone = document.getElementById("profilePhone");
-    const infoPhone = document.getElementById("infoPhone");
-    const infoEmail = document.getElementById("infoEmail");
-    const profileImg = document.querySelector(".profile-card img");
+    const infoPhone   = document.getElementById("infoPhone");
+    const infoEmail   = document.getElementById("infoEmail");
+    const profileImg  = document.querySelector(".profile-card img");
 
-    if (profileName) profileName.textContent = user.username || "Student User";
-    if (profilePhone) profilePhone.textContent = user.phone || "Not set";
-    if (infoPhone) infoPhone.textContent = user.phone || "Not set";
-    if (infoEmail) infoEmail.textContent = user.email || "Not set";
-    if (profileImg && localStorage.getItem("studentAvatar")) {
-        profileImg.src = localStorage.getItem("studentAvatar");
+    if (profileName) profileName.textContent = user.username || "—";
+    if (infoPhone)   infoPhone.textContent   = "Not set";
+    if (infoEmail)   infoEmail.textContent   = user.email    || "—";
+
+    if (profileImg) {
+        const saved = localStorage.getItem(avatarKey(user));
+        if (saved) profileImg.src = saved;
     }
 }
 
 function populateFormFields(user) {
-    const fullNameInput = document.getElementById("fullName");
-    const phoneInput    = document.getElementById("phone");
+    const usernameInput = document.getElementById("fullName");
     const emailInput    = document.getElementById("email");
 
-    if (fullNameInput) fullNameInput.value = user.username || "";
-    if (phoneInput)    phoneInput.value    = user.phone    || "";
+    if (usernameInput) usernameInput.value = user.username || "";
     if (emailInput)    emailInput.value    = user.email    || "";
 }
 
 function setupEventListeners() {
-    const form      = document.getElementById("profileForm");
+    const form        = document.getElementById("profileForm");
     const avatarInput = document.getElementById("avatarUpload");
-    const logoutBtn = document.querySelector(".logout");
+    const logoutBtn   = document.querySelector(".logout");
 
     if (avatarInput) avatarInput.addEventListener("change", handleAvatarUpload);
     if (form)        form.addEventListener("submit", handleProfileUpdate);
@@ -57,10 +59,9 @@ function handleAvatarUpload(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         const profileImg = document.querySelector(".profile-card img");
-        if (profileImg) {
-            profileImg.src = e.target.result;
-            localStorage.setItem("studentAvatar", e.target.result);
-        }
+        if (profileImg) profileImg.src = e.target.result;
+        const user = getCurrentUser();
+        if (user) localStorage.setItem(avatarKey(user), e.target.result);
     };
     reader.readAsDataURL(file);
 }
@@ -71,38 +72,24 @@ async function handleProfileUpdate(event) {
     const currentUser = getCurrentUser();
     if (!currentUser) return;
 
-    const name  = document.getElementById("fullName")?.value.trim();
-    const phone = document.getElementById("phone")?.value.trim();
-    const email = document.getElementById("email")?.value.trim();
-
-    // Build the JSON payload to send to the API
-    const payload = {
-        id:       currentUser.id,
-        username: name,
-        phone:    phone,
-        email:    email
-    };
+    const username = document.getElementById("fullName")?.value.trim();
+    const email    = document.getElementById("email")?.value.trim();
 
     try {
         const response = await fetch("../../api/update_profile.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)   // convert JS object → JSON string
+            body: JSON.stringify({ id: currentUser.id, username, email })
         });
 
-        // Parse the JSON response from the server
         const result = await response.json();
 
         if (result.success) {
             const updatedUser = result.user;
             localStorage.setItem("currentStudentUser", JSON.stringify(updatedUser));
-
-            // Refresh the displayed profile info
             loadUserProfile(updatedUser);
-
-            alert("Profile updated successfully ✅");
-            event.target.reset();
             populateFormFields(updatedUser);
+            alert("Profile updated successfully");
         } else {
             alert("Update failed: " + result.message);
         }
