@@ -1,5 +1,12 @@
-
-
+ --Users table
+CREATE TABLE IF NOT EXISTS users (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    username   VARCHAR(255) NOT NULL,
+    email      VARCHAR(255) NOT NULL UNIQUE,
+    password   VARCHAR(255) NOT NULL,
+    role       ENUM('student', 'cafe', 'admin') NOT NULL DEFAULT 'student',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 -- Products table
 CREATE TABLE IF NOT EXISTS products (
     id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -45,12 +52,18 @@ CREATE TABLE IF NOT EXISTS orders (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Users table
-CREATE TABLE IF NOT EXISTS users (
-    id         INT AUTO_INCREMENT PRIMARY KEY,
-    username   VARCHAR(255) NOT NULL,
-    email      VARCHAR(255) NOT NULL UNIQUE,
-    password   VARCHAR(255) NOT NULL,
-    role       ENUM('student', 'cafe', 'admin') NOT NULL DEFAULT 'student',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    time VARCHAR(50) NOT NULL,
+    isRead BOOLEAN NOT NULL DEFAULT 0
 );
+
+INSERT INTO notifications (type, title, message, time, isRead)
+VALUES
+('ready', 'Your order is ready', 'Order #124 is ready for pickup at Yellow KK.', '5 minutes ago', 0),
+('updated', 'Order update', 'Your order is now being prepared.', '20 minutes ago', 0),
+('cancelled', 'Order cancelled', 'Your order #123 has been cancelled.', '1 hour ago', 0);
+
