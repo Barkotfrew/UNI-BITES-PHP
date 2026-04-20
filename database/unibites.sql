@@ -25,3 +25,22 @@ CREATE TABLE IF NOT EXISTS cart (
     FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
+
+-- Orders table
+CREATE TABLE IF NOT EXISTS orders (
+    id                INT AUTO_INCREMENT PRIMARY KEY,
+    user_id           INT NOT NULL,
+    customer_name     VARCHAR(100) NOT NULL,
+    cafe              VARCHAR(100) NOT NULL,
+    items_json        LONGTEXT NOT NULL,
+    total             DECIMAL(10,2) NOT NULL DEFAULT 0,
+    status            VARCHAR(30) NOT NULL DEFAULT 'pending',
+    delivery_location VARCHAR(100) DEFAULT NULL,
+    notes             TEXT DEFAULT NULL,
+    created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_orders_user (user_id),
+    INDEX idx_orders_cafe (cafe),
+    INDEX idx_orders_status (status),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

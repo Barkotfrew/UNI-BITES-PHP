@@ -2,24 +2,25 @@
 require_once __DIR__ . '/../services/OrderService.php';
 
 class OrderController {
+    private OrderService $orderService;
 
-    private $orderService;
-
-    public function __construct() {
-        $this->orderService = new OrderService();
+    public function __construct(OrderService $orderService) {
+        $this->orderService = $orderService;
     }
 
-    // Handle place order request
-    public function placeOrder() {
-        $name     = $_POST['name'] ?? '';
-        $food     = $_POST['food_item'] ?? '';
-        $quantity = $_POST['quantity'] ?? 0;
-
-        return $this->orderService->placeOrder($name, $food, (int)$quantity);
+    public function placeOrder(array $payload): array {
+        return $this->orderService->placeOrder($payload);
     }
 
-    // Handle get all orders request
-    public function getAllOrders() {
-        return $this->orderService->getAllOrders();
+    public function getStudentOrders(int $userId): array {
+        return $this->orderService->getOrdersForStudent($userId);
+    }
+
+    public function getCafeOrders(?string $cafe = null): array {
+        return $this->orderService->getOrdersForCafe($cafe);
+    }
+
+    public function updateStatus(int $orderId, string $status): array {
+        return $this->orderService->updateStatus($orderId, $status);
     }
 }

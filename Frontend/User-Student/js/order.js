@@ -1,53 +1,62 @@
 let orders = [];
 
-function loadOrders() {
-    let s = localStorage.getItem('uniBitesOrders');
-    if (s) {
-        orders = JSON.parse(s);
-        orders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    }
-}
+async function loadOrders() {
+    try {
+        const response = await fetch("../../public/orders.php?action=list", {
+            credentials: "same-origin",
+        });
 
-function saveOrders() {
-    localStorage.setItem('uniBitesOrders', JSON.stringify(orders));
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to load orders");
+        }
+
+        orders = result.data?.orders || [];
+    } catch (error) {
+        console.error("Error loading orders:", error);
+        orders = [];
+        showMessage(error.message || "Unable to load your orders", true);
+    }
 }
 
 function showOrders() {
-    let c = document.getElementById('ordersContainer');
-    let e = document.getElementById('emptyOrders');
-    
+    let c = document.getElementById("ordersContainer");
+    let e = document.getElementById("emptyOrders");
+
     if (!orders.length) {
-        c.style.display = 'none';
-        e.style.display = 'block';
+        c.style.display = "none";
+        e.style.display = "block";
         return;
     }
-    
-    e.style.display = 'none';
-    c.style.display = 'block';
-    
-    let a = [], h = [];
+
+    e.style.display = "none";
+    c.style.display = "block";
+
+    let active = [];
+    let history = [];
     for (let i = 0; i < orders.length; i++) {
-        if (orders[i].status === 'delivered' || orders[i].status === 'cancelled') {
-            h.push(orders[i]);
+        if (orders[i].status === "delivered" || orders[i].status === "cancelled") {
+            history.push(orders[i]);
         } else {
-            a.push(orders[i]);
+            active.push(orders[i]);
         }
     }
-    
-    let html = '';
-    if (a.length > 0) {
+
+    let html = "";
+    if (active.length > 0) {
         html += '<h2 class="order-section-title">Active Orders</h2>';
-        for (let i = 0; i < a.length; i++) {
-            html += createOrderHTML(a[i]);
+        for (let i = 0; i < active.length; i++) {
+            html += createOrderHTML(active[i]);
         }
     }
-    if (h.length > 0) {
+    if (history.length > 0) {
         html += '<h2 class="order-section-title">Order History</h2>';
-        for (let i = 0; i < h.length; i++) {
-            html += createOrderHTML(h[i]);
+        for (let i = 0; i < history.length; i++) {
+            html += createOrderHTML(history[i]);
         }
     }
-    
+
     c.innerHTML = html;
 }
 
@@ -57,116 +66,125 @@ function createOrderHTML(o) {
             <div class="order-header">
                 <h3>Order #${o.id}</h3>
                 <span class="order-status status-${o.status}">${o.status}</span>
-                ${o.total ? `<div class="order-total">${o.total} Birr</div>` : ''}
+                <div class="order-total">${Number(o.total || 0).toFixed(2)} Birr</div>
             </div>
             <div class="order-items">
     `;
-    
+
     for (let j = 0; j < o.items.length; j++) {
-        let i = o.items[j];
+        let item = o.items[j];
         html += `
             <div class="order-item">
-                <img src="${i.image}" alt="${i.name}" class="order-item-image" loading="lazy" onerror="this.style.display='none'">
+                <img src="${item.image_url || item.image || ""}" alt="${item.name}" class="order-item-image" loading="lazy" onerror="this.style.display='none'">
                 <div class="order-item-details">
-                    <div class="order-item-name">${i.name}</div>
-                    <div class="order-item-quantity">Qty: ${i.quantity}${i.price && i.quantity ? ' - ' + (i.price * i.quantity) + ' Birr' : ''}</div>
+                    <div class="order-item-name">${item.name}</div>
+                    <div class="order-item-quantity">Qty: ${item.quantity} - ${(Number(item.price || 0) * Number(item.quantity || 0)).toFixed(2)} Birr</div>
                 </div>
             </div>
         `;
     }
-    
+
     html += `
             </div>
             <div class="order-actions">
     `;
-    
-    if (o.status === 'pending') {
-        html += `<button onclick="cancelOrder('${o.id}')">Cancel Order</button>`;
+
+    if (o.status === "pending" || o.status === "confirmed" || o.status === "preparing") {
+        html += `<button onclick="cancelOrder(${o.id})">Cancel Order</button>`;
     }
-    if (o.status === 'ready') {
-        html += `<button onclick="markDelivered('${o.id}')">Mark Received</button>`;
+    if (o.status === "ready") {
+        html += `<button onclick="markDelivered(${o.id})">Mark Received</button>`;
     }
-    if (o.status === 'delivered' || o.status === 'cancelled') {
-        html += `<button onclick="reorderItems('${o.id}')">Order Again</button>`;
+    if (o.status === "delivered" || o.status === "cancelled") {
+        html += `<button onclick="reorderItems(${o.id})">Order Again</button>`;
     }
-    
-    return html + `
+
+    html += `
             </div>
         </div>
     `;
+
+    return html;
+}
+
+async function updateOrderStatus(orderId, status, successMessage) {
+    try {
+        const response = await fetch("../../public/orders.php?action=status", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order_id: orderId, status }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to update order");
+        }
+
+        await loadOrders();
+        showOrders();
+        showMessage(successMessage);
+    } catch (error) {
+        console.error("Order update failed:", error);
+        showMessage(error.message || "Could not update order", true);
+    }
 }
 
 function cancelOrder(orderId) {
-    for (let i = 0; i < orders.length; i++) {
-        if (orders[i].id === orderId) {
-            if (confirm('Cancel this order?')) {
-                orders[i].status = 'cancelled';
-                saveOrders();
-                showOrders();
-                showMessage('Order cancelled');
-            }
-            break;
-        }
+    if (confirm("Cancel this order?")) {
+        updateOrderStatus(orderId, "cancelled", "Order cancelled");
     }
 }
 
 function markDelivered(orderId) {
-    for (let i = 0; i < orders.length; i++) {
-        if (orders[i].id === orderId) {
-            orders[i].status = 'delivered';
-            saveOrders();
-            showOrders();
-            showMessage('Order received!');
-            break;
-        }
-    }
+    updateOrderStatus(orderId, "delivered", "Order received!");
 }
 
-function reorderItems(orderId) {
-    let o = null;
-    for (let i = 0; i < orders.length; i++) {
-        if (orders[i].id === orderId) {
-            o = orders[i];
-            break;
-        }
+async function reorderItems(orderId) {
+    let order = orders.find((item) => item.id === orderId);
+
+    if (!order) {
+        return;
     }
-    
-    if (o) {
-        let c = localStorage.getItem('uniBitesCart');
-        c = c ? JSON.parse(c) : [];
-        
-        for (let i = 0; i < o.items.length; i++) {
-            let item = o.items[i];
-            let found = false;
-            
-            for (let j = 0; j < c.length; j++) {
-                if (c[j].id === item.id) {
-                    c[j].quantity += item.quantity;
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (!found) {
-                c.push(item);
+
+    try {
+        for (let i = 0; i < order.items.length; i++) {
+            let item = order.items[i];
+            const response = await fetch("../../public/cart.php?action=add", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    product_id: item.product_id,
+                    quantity: item.quantity,
+                }),
+            });
+
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(result.message || "Failed to re-add items to cart");
             }
         }
-        
-        localStorage.setItem('uniBitesCart', JSON.stringify(c));
-        showMessage('Items added to cart!');
-        setTimeout(() => window.location.href = 'cart.html', 1500);
+
+        showMessage("Items added to cart!");
+        setTimeout(() => window.location.href = "cart.html", 1200);
+    } catch (error) {
+        console.error("Reorder failed:", error);
+        showMessage(error.message || "Could not reorder items", true);
     }
 }
 
-function showMessage(t) {
-    let m = document.createElement('div');
-    m.textContent = t;
-    m.className = 'notification';
-    document.body.appendChild(m);
-    setTimeout(() => document.body.removeChild(m), 3000);
+function showMessage(text, isError = false) {
+    let message = document.createElement("div");
+    message.textContent = text;
+    message.className = "notification";
+    message.style.background = isError ? "#c62828" : "#2e7d32";
+    document.body.appendChild(message);
+    setTimeout(() => message.remove(), 3000);
 }
 
-window.onload = () => {
-    loadOrders();
+window.onload = async () => {
+    await loadOrders();
     showOrders();
 };
