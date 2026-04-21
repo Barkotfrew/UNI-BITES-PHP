@@ -240,7 +240,70 @@ class ShoppingCart {
       return;
     }
 
-    this.showNotification("Checkout is not implemented in this version.");
+    const cafes = [...new Set(this.cart.map((item) => item.cafe).filter(Boolean))];
+    if (cafes.length > 1) {
+      this.showNotification("Please order items from one cafe at a time.");
+      return;
+    }
+
+    const currentUser = JSON.parse(
+      localStorage.getItem("currentStudentUser") || "null",
+    );
+
+    const deliveryLocation = window.prompt(
+      "Enter pickup location (for example: library, dorm-1, cafeteria):",
+      "cafeteria",
+    );
+    if (deliveryLocation === null) {
+      return;
+    }
+
+    const notes =
+      window.prompt("Any notes for the cafe? You can leave this blank.", "") ||
+      "";
+
+    const payload = {
+      customer_name: currentUser?.username || "Student",
+      cafe: cafes[0] || "",
+      delivery_location: deliveryLocation.trim(),
+      notes: notes.trim(),
+      items: this.cart.map((item) => ({
+        product_id: item.product_id,
+        name: item.name,
+        quantity: item.quantity,
+        price: Number(item.price),
+        image_url: item.image_url || "",
+        cafe: item.cafe || cafes[0] || "",
+      })),
+    };
+
+    try {
+      const response = await fetch("../../public/orders.php?action=create", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || "Checkout failed");
+      }
+
+      this.showOrderConfirmation({
+        id: result.data?.id || result.data?.order_id || "N/A",
+        subtotal: Number(result.data?.total || 0),
+      });
+      this.cart = [];
+      this.displayCart();
+      this.showNotification("Order placed successfully!");
+      setTimeout(() => {
+        window.location.href = "orders.html";
+      }, 1800);
+    } catch (error) {
+      console.error("Checkout failed:", error);
+      this.showNotification(error.message || "Checkout failed");
+    }
   }
 
   showOrderConfirmation(order) {

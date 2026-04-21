@@ -1,36 +1,43 @@
 let cafeOrders = [];
 
-function loadCafeOrders() {
-    let u = localStorage.getItem('uniBitesOrders');
-    if (u) {
-        cafeOrders = JSON.parse(u);
-        cafeOrders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    }
-}
+async function loadCafeOrders() {
+    try {
+        const response = await fetch("../../public/orders.php?action=list", {
+            credentials: "same-origin",
+        });
+        const result = await response.json();
 
-function saveCafeOrders() {
-    localStorage.setItem('uniBitesOrders', JSON.stringify(cafeOrders));
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to load cafe orders");
+        }
+
+        cafeOrders = result.data?.orders || [];
+    } catch (error) {
+        console.error("Error loading cafe orders:", error);
+        cafeOrders = [];
+        showCafeMessage(error.message || "Unable to load cafe orders", true);
+    }
 }
 
 function showCafeOrders() {
-    let c = document.getElementById('cafeOrdersContainer');
-    let e = document.getElementById('emptyCafeOrders');
-    
+    let c = document.getElementById("cafeOrdersContainer");
+    let e = document.getElementById("emptyCafeOrders");
+
     if (!cafeOrders.length) {
-        c.style.display = 'none';
-        e.style.display = 'block';
+        c.style.display = "none";
+        e.style.display = "block";
         updateOrderStats();
         return;
     }
-    
-    e.style.display = 'none';
-    c.style.display = 'block';
-    
-    let html = '';
+
+    e.style.display = "none";
+    c.style.display = "block";
+
+    let html = "";
     for (let i = 0; i < cafeOrders.length; i++) {
         html += createCafeOrderHTML(cafeOrders[i]);
     }
-    
+
     c.innerHTML = html;
     updateOrderStats();
 }
@@ -41,141 +48,146 @@ function createCafeOrderHTML(o) {
             <div class="cafe-order-header">
                 <h3>Order #${o.id}</h3>
                 <span class="cafe-order-status status-${o.status}">${o.status}</span>
-                ${o.total ? `<div class="cafe-order-total">${o.total} Birr</div>` : ''}
+                <div class="cafe-order-total">${Number(o.total || 0).toFixed(2)} Birr</div>
             </div>
             <div class="cafe-order-details">
                 <div class="customer-info">
-                    <strong>Customer:</strong> ${o.customerName || 'Student'}
-                    <br><strong>Location:</strong> ${getLocationName(o.deliveryLocation)}
-                    ${o.notes ? '<br><strong>Notes:</strong> ' + o.notes : ''}
+                    <strong>Customer:</strong> ${o.customerName || "Student"}
+                    <br><strong>Cafe:</strong> ${getCafeName(o.cafe)}
+                    ${o.deliveryLocation ? "<br><strong>Location:</strong> " + getLocationName(o.deliveryLocation) : ""}
+                    ${o.notes ? "<br><strong>Notes:</strong> " + o.notes : ""}
                 </div>
                 <div class="cafe-order-items">
     `;
-    
+
     for (let j = 0; j < o.items.length; j++) {
-        let i = o.items[j];
+        let item = o.items[j];
         html += `
             <div class="cafe-order-item">
-                <img src="${i.image}" alt="${i.name}" class="cafe-order-item-image" loading="lazy" onerror="this.style.display='none'">
+                <img src="${item.image_url || item.image || ""}" alt="${item.name}" class="cafe-order-item-image" loading="lazy" onerror="this.style.display='none'">
                 <div class="cafe-order-item-details">
-                    <div class="cafe-order-item-name">${i.name}</div>
-                    <div class="cafe-order-item-quantity">Qty: ${i.quantity}</div>
+                    <div class="cafe-order-item-name">${item.name}</div>
+                    <div class="cafe-order-item-quantity">Qty: ${item.quantity}</div>
                 </div>
-                ${i.price && i.quantity ? `<div class="cafe-order-item-price">${i.price * i.quantity} Birr</div>` : ''}
+                <div class="cafe-order-item-price">${(Number(item.price || 0) * Number(item.quantity || 0)).toFixed(2)} Birr</div>
             </div>
         `;
     }
-    
+
     html += `
                 </div>
             </div>
             <div class="cafe-order-actions">
     `;
-    
-    if (o.status === 'pending') {
+
+    if (o.status === "pending") {
         html += `
-            <button class="accept-btn" onclick="acceptOrder('${o.id}')">Accept Order</button>
-            <button class="reject-btn" onclick="rejectOrder('${o.id}')">Reject Order</button>
+            <button class="accept-btn" onclick="acceptOrder(${o.id})">Accept Order</button>
+            <button class="reject-btn" onclick="rejectOrder(${o.id})">Reject Order</button>
         `;
-    } else if (o.status === 'confirmed') {
-        html += `<button class="prepare-btn" onclick="startPreparing('${o.id}')">Start Preparing</button>`;
-    } else if (o.status === 'preparing') {
-        html += `<button class="ready-btn" onclick="markReady('${o.id}')">Mark Ready</button>`;
+    } else if (o.status === "confirmed") {
+        html += `<button class="prepare-btn" onclick="startPreparing(${o.id})">Start Preparing</button>`;
+    } else if (o.status === "preparing") {
+        html += `<button class="ready-btn" onclick="markReady(${o.id})">Mark Ready</button>`;
     }
-    
-    return html + `
+
+    html += `
             </div>
         </div>
     `;
+
+    return html;
 }
 
-function acceptOrder(orderId) {
-    for (let i = 0; i < cafeOrders.length; i++) {
-        if (cafeOrders[i].id === orderId) {
-            cafeOrders[i].status = 'confirmed';
-            saveCafeOrders();
-            showCafeOrders();
-            showCafeMessage('Order accepted!');
-            break;
+async function updateCafeOrderStatus(orderId, status, successMessage) {
+    try {
+        const response = await fetch("../../public/orders.php?action=status", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order_id: orderId, status }),
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to update order status");
         }
+
+        await loadCafeOrders();
+        showCafeOrders();
+        showCafeMessage(successMessage);
+    } catch (error) {
+        console.error("Cafe order update failed:", error);
+        showCafeMessage(error.message || "Unable to update order", true);
     }
 }
 
+function acceptOrder(orderId) {
+    updateCafeOrderStatus(orderId, "confirmed", "Order accepted!");
+}
+
 function rejectOrder(orderId) {
-    if (confirm('Reject this order?')) {
-        for (let i = 0; i < cafeOrders.length; i++) {
-            if (cafeOrders[i].id === orderId) {
-                cafeOrders[i].status = 'cancelled';
-                saveCafeOrders();
-                showCafeOrders();
-                showCafeMessage('Order rejected');
-                break;
-            }
-        }
+    if (confirm("Reject this order?")) {
+        updateCafeOrderStatus(orderId, "cancelled", "Order rejected");
     }
 }
 
 function startPreparing(orderId) {
-    for (let i = 0; i < cafeOrders.length; i++) {
-        if (cafeOrders[i].id === orderId) {
-            cafeOrders[i].status = 'preparing';
-            saveCafeOrders();
-            showCafeOrders();
-            showCafeMessage('Started preparing order');
-            break;
-        }
-    }
+    updateCafeOrderStatus(orderId, "preparing", "Started preparing order");
 }
 
 function markReady(orderId) {
-    for (let i = 0; i < cafeOrders.length; i++) {
-        if (cafeOrders[i].id === orderId) {
-            cafeOrders[i].status = 'ready';
-            saveCafeOrders();
-            showCafeOrders();
-            showCafeMessage('Order is ready for pickup!');
-            break;
-        }
-    }
+    updateCafeOrderStatus(orderId, "ready", "Order is ready for pickup!");
 }
 
 function getLocationName(locationId) {
-    let l = {
-        'dorm-1': 'Dormitory Block 1',
-        'dorm-2': 'Dormitory Block 2',
-        'library': 'Library',
-        'cafeteria': 'Main Cafeteria',
-        'classroom-a': 'Classroom Block A',
-        'classroom-b': 'Classroom Block B'
+    let locations = {
+        "dorm-1": "Dormitory Block 1",
+        "dorm-2": "Dormitory Block 2",
+        library: "Library",
+        cafeteria: "Main Cafeteria",
+        "classroom-a": "Classroom Block A",
+        "classroom-b": "Classroom Block B",
     };
-    return l[locationId] || locationId;
+    return locations[locationId] || locationId;
+}
+
+function getCafeName(cafeId) {
+    let cafes = {
+        "kk-green": "KK Green",
+        central: "Central",
+        "kk-yellow": "KK Yellow",
+        kibnesh: "Kibnesh",
+    };
+    return cafes[cafeId] || cafeId || "Cafe";
 }
 
 function updateOrderStats() {
-    let p = 0;
+    let pending = 0;
     for (let i = 0; i < cafeOrders.length; i++) {
-        if (cafeOrders[i].status === 'pending') {
-            p++;
+        if (cafeOrders[i].status === "pending") {
+            pending++;
         }
     }
-    document.getElementById('pendingCount').textContent = p;
+    document.getElementById("pendingCount").textContent = pending;
 }
 
-function showCafeMessage(t) {
-    let m = document.createElement('div');
-    m.textContent = t;
-    m.className = 'cafe-notification';
-    document.body.appendChild(m);
-    setTimeout(() => document.body.removeChild(m), 3000);
+function showCafeMessage(text, isError = false) {
+    let message = document.createElement("div");
+    message.textContent = text;
+    message.className = "cafe-notification";
+    message.style.background = isError ? "#c62828" : "#2e7d32";
+    document.body.appendChild(message);
+    setTimeout(() => message.remove(), 3000);
 }
 
-function autoRefresh() {
-    loadCafeOrders();
+async function autoRefresh() {
+    await loadCafeOrders();
     showCafeOrders();
 }
 
-window.onload = () => {
-    loadCafeOrders();
+window.onload = async () => {
+    await loadCafeOrders();
     showCafeOrders();
     setInterval(autoRefresh, 10000);
 };

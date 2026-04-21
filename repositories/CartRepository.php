@@ -11,7 +11,7 @@ class CartRepository {
     public function getCartByUser(int $userId): array {
         $stmt = $this->conn->prepare("
             SELECT c.id, c.product_id, c.quantity, 
-                   p.name, p.price, p.image_url,
+                   p.name, p.price, p.image_url, p.cafe,
                    (c.quantity * p.price) AS subtotal
             FROM cart c
             JOIN products p ON c.product_id = p.id

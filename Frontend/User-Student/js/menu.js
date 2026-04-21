@@ -2,6 +2,10 @@
 class CustomerMenu {
   constructor() {
     this.menuItems = [];
+    this.apiEndpoints = [
+      "../../api/get_menu.php",
+      "http://localhost/UNI-BITES-PHP/api/get_menu.php",
+    ];
     this.init();
   }
 
@@ -29,14 +33,13 @@ class CustomerMenu {
   }
 
   async loadMenuFromAPI() {
-    try {
-      document.getElementById("loading").style.display = "block";
+    const loadingElement = document.getElementById("loading");
 
-      // Fetch menu items from the database API
-      const response = await fetch(
-        "http://localhost/UNI-BITES-PHP/api/get_menu.php",
-      );
-      const result = await response.json();
+    try {
+      loadingElement.style.display = "block";
+      loadingElement.textContent = "Loading menu items...";
+
+      const result = await this.fetchMenuData();
 
       // IMPORTANT: backend wraps data inside "data"
       const data = Array.isArray(result) ? result : result.data || [];
@@ -49,18 +52,42 @@ class CustomerMenu {
         category: item.category || "lunch",
         cafe: item.cafe,
         image: item.image_url,
-        available: item.available == 1,
+        available: Number(item.available) === 1 || item.available === true,
       }));
 
       this.menuItems = apiItems;
       this.displayMenu();
-
-      document.getElementById("loading").style.display = "none";
+      loadingElement.style.display = "none";
     } catch (error) {
       console.error("Error loading menu:", error);
-      document.getElementById("loading").innerHTML =
-        "Error loading menu. Please try again.";
+      loadingElement.style.display = "block";
+      loadingElement.textContent =
+        "Error loading menu items. Please check that Apache/PHP is running and try again.";
+      document.getElementById("menuContainer").innerHTML =
+        '<div class="no-results">Menu items could not be loaded right now.</div>';
     }
+  }
+
+  async fetchMenuData() {
+    let lastError = null;
+
+    for (const endpoint of this.apiEndpoints) {
+      try {
+        const response = await fetch(endpoint, {
+          headers: { Accept: "application/json" },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        return await response.json();
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    throw lastError || new Error("Unable to load menu items.");
   }
 
   categorizeRecipe(recipe) {
