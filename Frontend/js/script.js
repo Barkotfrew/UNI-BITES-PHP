@@ -32,6 +32,18 @@ document.addEventListener("DOMContentLoaded", function () {
     updateFormTitles();
     if (loginForm)    loginForm.addEventListener("submit", handleLogin);
     if (registerForm) registerForm.addEventListener("submit", handleRegister);
+
+    // Password visibility toggle
+    document.querySelectorAll(".toggle-password").forEach((icon) => {
+        icon.addEventListener("click", () => {
+            const input = document.getElementById(icon.dataset.target);
+            if (!input) return;
+            const isHidden = input.type === "password";
+            input.type = isHidden ? "text" : "password";
+            icon.classList.toggle("fa-eye", !isHidden);
+            icon.classList.toggle("fa-eye-slash", isHidden);
+        });
+    });
 });
 
 function updateFormTitles() {
@@ -95,7 +107,7 @@ async function handleLogin(event) {
             alert("Invalid admin credentials or unauthorized access");
             return;
         }
-        const user = { username, role: "admin", email: "admin@unibites.com", phone: null };
+        const user = { name: username, role: "admin", email: "admin@unibites.com", phone: null };
         storeAuthenticatedUser(user);
         redirectByRole(role);
         return;

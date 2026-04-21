@@ -53,7 +53,6 @@ try {
             "id"       => $userId,
             "username" => $username,
             "email"    => $email,
-            "phone"    => null,
             "role"     => $role
         ]
     ]);
@@ -61,4 +60,3 @@ try {
 } catch (Exception $e) {
     echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
 }
-?>

@@ -2,7 +2,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const currentUser = getCurrentUser();
     if (!currentUser) {
-        window.location.href = "../../role.html";
+        window.location.href = "../../Frontend/role.html";
         return;
     }
     loadUserProfile(currentUser);
@@ -15,29 +15,31 @@ function getCurrentUser() {
     return userStr ? JSON.parse(userStr) : null;
 }
 
+function avatarKey(user) {
+    return "avatar_" + (user.id || user.email);
+}
+
 function loadUserProfile(user) {
     const profileName = document.getElementById("profileName");
-    const profilePhone = document.getElementById("profilePhone");
     const infoPhone   = document.getElementById("infoPhone");
     const infoEmail   = document.getElementById("infoEmail");
     const profileImg  = document.getElementById("profileImg");
 
-    if (profileName)  profileName.textContent  = user.username || "Cafe Owner";
-    if (profilePhone) profilePhone.textContent = user.phone    || "Not set";
-    if (infoPhone)    infoPhone.textContent    = user.phone    || "Not set";
-    if (infoEmail)    infoEmail.textContent    = user.email    || "Not set";
-    if (profileImg && localStorage.getItem("ownerAvatar")) {
-        profileImg.src = localStorage.getItem("ownerAvatar");
+    if (profileName) profileName.textContent = user.username || "—";
+    if (infoPhone)   infoPhone.textContent   = "Not set";
+    if (infoEmail)   infoEmail.textContent   = user.email    || "—";
+
+    if (profileImg) {
+        const saved = localStorage.getItem(avatarKey(user));
+        if (saved) profileImg.src = saved;
     }
 }
 
 function populateFormFields(user) {
-    const fullNameInput = document.getElementById("fullName");
-    const phoneInput    = document.getElementById("phone");
+    const usernameInput = document.getElementById("fullName");
     const emailInput    = document.getElementById("email");
 
-    if (fullNameInput) fullNameInput.value = user.username || "";
-    if (phoneInput)    phoneInput.value    = user.phone    || "";
+    if (usernameInput) usernameInput.value = user.username || "";
     if (emailInput)    emailInput.value    = user.email    || "";
 }
 
@@ -57,10 +59,9 @@ function handleAvatarUpload(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         const profileImg = document.getElementById("profileImg");
-        if (profileImg) {
-            profileImg.src = e.target.result;
-            localStorage.setItem("ownerAvatar", e.target.result);
-        }
+        if (profileImg) profileImg.src = e.target.result;
+        const user = getCurrentUser();
+        if (user) localStorage.setItem(avatarKey(user), e.target.result);
     };
     reader.readAsDataURL(file);
 }
@@ -71,23 +72,14 @@ async function handleProfileUpdate(event) {
     const currentUser = getCurrentUser();
     if (!currentUser) return;
 
-    const name  = document.getElementById("fullName")?.value.trim();
-    const phone = document.getElementById("phone")?.value.trim();
-    const email = document.getElementById("email")?.value.trim();
-
-    // JSON payload — what we send to the API
-    const payload = {
-        id:       currentUser.id,
-        username: name,
-        phone:    phone,
-        email:    email
-    };
+    const username = document.getElementById("fullName")?.value.trim();
+    const email    = document.getElementById("email")?.value.trim();
 
     try {
         const response = await fetch("../../api/update_profile.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ id: currentUser.id, username, email })
         });
 
         const result = await response.json();
@@ -95,10 +87,9 @@ async function handleProfileUpdate(event) {
         if (result.success) {
             const updatedUser = result.user;
             localStorage.setItem("currentCafeUser", JSON.stringify(updatedUser));
-
             loadUserProfile(updatedUser);
-            alert("Profile updated successfully ✅");
             populateFormFields(updatedUser);
+            alert("Profile updated successfully");
         } else {
             alert("Update failed: " + result.message);
         }
@@ -113,6 +104,6 @@ function handleLogout() {
     if (confirm("Are you sure you want to logout?")) {
         localStorage.removeItem('loggedIn');
         localStorage.removeItem('currentCafeUser');
-        window.location.href = "../Landing-page.html";
+        window.location.href = "../../Frontend/Landing-page.html";
     }
 }
