@@ -70,7 +70,13 @@ switch ($action) {
             sendResponse(401, 'Please log in to view orders.');
         }
 
-        if ($sessionRole === 'cafe' || $sessionRole === 'admin') {
+        if ($sessionRole === 'cafe') {
+            $cafe = trim((string)($_SESSION['username'] ?? ''));
+            $orders = $controller->getCafeOrders($cafe !== '' ? $cafe : null);
+            sendResponse(200, 'Orders retrieved', ['orders' => $orders]);
+        }
+
+        if ($sessionRole === 'admin') {
             $cafe = trim((string)($_GET['cafe'] ?? ''));
             $orders = $controller->getCafeOrders($cafe !== '' ? $cafe : null);
             sendResponse(200, 'Orders retrieved', ['orders' => $orders]);
@@ -95,9 +101,17 @@ switch ($action) {
             sendResponse(400, 'order_id and status are required.');
         }
 
-        $existingOrder = $controller->getCafeOrders();
+        if ($sessionRole === 'student') {
+            $existingOrders = $controller->getStudentOrders($sessionUserId);
+        } elseif ($sessionRole === 'cafe') {
+            $cafe = trim((string)($_SESSION['username'] ?? ''));
+            $existingOrders = $controller->getCafeOrders($cafe !== '' ? $cafe : null);
+        } else {
+            $existingOrders = $controller->getCafeOrders();
+        }
+
         $matchedOrder = null;
-        foreach ($existingOrder as $order) {
+        foreach ($existingOrders as $order) {
             if ((int)$order['id'] === $orderId) {
                 $matchedOrder = $order;
                 break;
@@ -110,6 +124,10 @@ switch ($action) {
 
         if ($sessionRole === 'student' && (int)$matchedOrder['user_id'] !== $sessionUserId) {
             sendResponse(403, 'You can only update your own orders.');
+        }
+
+        if ($sessionRole === 'cafe' && trim((string)($matchedOrder['cafe'] ?? '')) !== trim((string)($_SESSION['username'] ?? ''))) {
+            sendResponse(403, 'You can only update orders for your cafe.');
         }
 
         if ($sessionRole === 'student' && !in_array($status, ['cancelled', 'delivered'], true)) {
