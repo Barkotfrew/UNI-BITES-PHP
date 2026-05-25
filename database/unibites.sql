@@ -65,5 +65,5 @@ INSERT INTO notifications (type, title, message, time, isRead)
 VALUES
 ('ready', 'Your order is ready', 'Order #124 is ready for pickup at Yellow KK.', '5 minutes ago', 0),
 ('updated', 'Order update', 'Your order is now being prepared.', '20 minutes ago', 0),
-('cancelled', 'Order cancelled', 'Your order #123 has been cancelled.', '1 hour ago', 0);
-
+('cancelled', 'Order cancelled', 'Your order #123 has been cancelled.', '1 hour ago', 0),
+('reminder', 'Your order is ready', 'Order #124 is ready for pickup at Cental.', '5 minutes ago', 0);

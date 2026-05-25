@@ -76,7 +76,7 @@ function getTypeLabel(type) {
 
 function updateBadge() {
     const unreadCount = notifications.filter(function (notification) {
-        return notification.isRead === false;
+        return notification.isRead === 0;
     }).length;
 
     const badge = document.querySelector(".nav-notification-badge");
