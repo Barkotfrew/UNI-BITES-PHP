@@ -1,9 +1,11 @@
 <?php
+require_once '../config/db.php';
 
-$conn = require_once '../config/db.php';
+$db = new Database();
+$conn = $db->connect();
 
 if ($conn) {
-    echo "Connected successfully!";
+    echo "Connected successfully";
 } else {
-    echo "Connection failed!";
+    echo "Connection failed";
 }
