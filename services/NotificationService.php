@@ -10,15 +10,19 @@ class NotificationService {
     }
 
     public function getNotifications(int $userId): array {
-        if ($this->repo->countByUserId($userId) === 0) {
-            $this->seedDemoNotifications($userId);
-        }
-
         $notifications = $this->repo->getByUserId($userId);
 
         return array_map(function (array $notification): array {
-            $notification['is_read'] = (bool)$notification['is_read'];
-            return $notification;
+            return [
+                'id' => (int)$notification['id'],
+                'user_id' => (int)$notification['user_id'],
+                'type' => $notification['type'],
+                'title' => $notification['title'],
+                'message' => $notification['message'],
+                'isRead' => (bool)$notification['is_read'],
+                'time' => $notification['created_at'],
+                'created_at' => $notification['created_at'],
+            ];
         }, $notifications);
     }
 
@@ -27,7 +31,13 @@ class NotificationService {
         $title = trim($title);
         $message = trim($message);
 
-        if (!in_array($type, ['ready', 'updated', 'reminder', 'order'], true)) {
+        $allowedTypes = ['ready', 'updated', 'reminder', 'order', 'cancelled', 'confirmed', 'preparing', 'delivered'];
+
+        if ($userId <= 0) {
+            return ['success' => false, 'message' => 'Valid user_id is required'];
+        }
+
+        if (!in_array($type, $allowedTypes, true)) {
             return ['success' => false, 'message' => 'Invalid notification type'];
         }
 
@@ -40,7 +50,16 @@ class NotificationService {
         return [
             'success' => true,
             'message' => 'Notification created successfully',
-            'notification' => $notification,
+            'notification' => [
+                'id' => (int)$notification['id'],
+                'user_id' => (int)$notification['user_id'],
+                'type' => $notification['type'],
+                'title' => $notification['title'],
+                'message' => $notification['message'],
+                'isRead' => (bool)$notification['is_read'],
+                'time' => $notification['created_at'],
+                'created_at' => $notification['created_at'],
+            ],
         ];
     }
 
@@ -86,35 +105,6 @@ class NotificationService {
             'success' => $ok,
             'message' => $ok ? 'All notifications cleared' : 'Failed to clear notifications',
         ];
-    }
-
-    private function seedDemoNotifications(int $userId): void {
-        $demoNotifications = [
-            [
-                'type' => 'ready',
-                'title' => 'Your order is ready',
-                'message' => 'Order #124 is ready for pickup at Yellow KK.',
-            ],
-            [
-                'type' => 'updated',
-                'title' => 'Order status updated',
-                'message' => 'The cafe has started preparing your food.',
-            ],
-            [
-                'type' => 'reminder',
-                'title' => 'Pickup reminder',
-                'message' => 'Please collect your order before it gets cold.',
-            ],
-        ];
-
-        foreach ($demoNotifications as $notification) {
-            $this->repo->create(
-                $userId,
-                $notification['type'],
-                $notification['title'],
-                $notification['message']
-            );
-        }
     }
 }
 ?>
