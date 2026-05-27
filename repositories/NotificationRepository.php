@@ -50,6 +50,16 @@ class NotificationRepository {
         return $stmt->rowCount() > 0;
     }
 
+    public function updateReadStatus(int $notificationId, int $userId, bool $isRead): bool {
+        $stmt = $this->conn->prepare("
+            UPDATE notifications
+            SET is_read = ?
+            WHERE id = ? AND user_id = ?
+        ");
+        $stmt->execute([$isRead ? 1 : 0, $notificationId, $userId]);
+        return $stmt->rowCount() > 0;
+    }
+
     public function markAllAsRead(int $userId): bool {
         $stmt = $this->conn->prepare("
             UPDATE notifications

@@ -76,6 +76,19 @@ class NotificationService {
         ];
     }
 
+    public function updateReadStatus(int $userId, int $notificationId, bool $isRead): array {
+        if ($notificationId <= 0) {
+            return ['success' => false, 'message' => 'notification_id is required'];
+        }
+
+        $ok = $this->repo->updateReadStatus($notificationId, $userId, $isRead);
+
+        return [
+            'success' => $ok,
+            'message' => $ok ? 'Notification read status updated' : 'Notification not found',
+        ];
+    }
+
     public function markAllAsRead(int $userId): array {
         $ok = $this->repo->markAllAsRead($userId);
 

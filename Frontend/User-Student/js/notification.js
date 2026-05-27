@@ -69,7 +69,7 @@ function renderNotifications() {
                     <span class="notif-time">${notification.time}</span>
 
                     <div class="notification-actions-bottom">
-                        <button class="action-btn mark-btn" onclick="toggleRead(${notification.id})">
+                        <button class="action-btn mark-btn" onclick="toggleRead(${notification.id}, ${notification.isRead ? "false" : "true"})">
                             ${notification.isRead ? "Unread" : "Read"}
                         </button>
 
@@ -121,9 +121,9 @@ function setFilter(filterType) {
     renderNotifications();
 }
 
-async function toggleRead(id) {
+async function toggleRead(id, isRead) {
     try {
-        await apiRequest("read", "POST", { notification_id: id });
+        await apiRequest("read", "POST", { notification_id: id, is_read: isRead });
         await loadNotifications();
     } catch (error) {
         console.error("Failed to mark notification as read:", error);

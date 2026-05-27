@@ -17,6 +17,8 @@ require_once __DIR__ . '/../repositories/OrderRepository.php';
 require_once __DIR__ . '/../services/OrderService.php';
 require_once __DIR__ . '/../Menu/OrderController.php';
 require_once __DIR__ . '/../repositories/CartRepository.php';
+require_once __DIR__ . '/../repositories/NotificationRepository.php';
+require_once __DIR__ . '/../services/NotificationService.php';
 
 $database = new Database();
 $conn = $database->connect();
@@ -27,6 +29,7 @@ if (!$conn) {
 
 $controller = new OrderController(new OrderService(new OrderRepository($conn)));
 $cartRepository = new CartRepository($conn);
+$notificationService = new NotificationService(new NotificationRepository($conn));
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? ($method === 'GET' ? 'list' : 'create');
 $body = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -59,6 +62,13 @@ switch ($action) {
         }
 
         $cartRepository->clearCart($sessionUserId);
+        $notificationService->createNotification(
+            (int)$result['order']['user_id'],
+            'order',
+            'Order placed',
+            'Your order #' . (int)$result['order']['id'] . ' has been placed successfully.'
+        );
+
         sendResponse(201, $result['message'], $result['order']);
         break;
 

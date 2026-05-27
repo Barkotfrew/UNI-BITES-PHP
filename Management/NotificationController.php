@@ -38,6 +38,11 @@ class NotificationController {
         $body = $this->getJsonBody();
         $notificationId = (int)($body['notification_id'] ?? 0);
 
+        if (array_key_exists('is_read', $body)) {
+            $result = $this->service->updateReadStatus($userId, $notificationId, (bool)$body['is_read']);
+            sendResponse($result['success'] ? 200 : 404, $result['message']);
+        }
+
         $result = $this->service->markAsRead($userId, $notificationId);
         sendResponse($result['success'] ? 200 : 404, $result['message']);
     }
