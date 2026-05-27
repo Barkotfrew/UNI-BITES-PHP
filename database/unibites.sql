@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS cart (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
 -- ============================================================
 -- NOTIFICATIONS
 -- type uses VARCHAR so the application layer controls valid
