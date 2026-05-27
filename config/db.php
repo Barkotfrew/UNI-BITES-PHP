@@ -18,7 +18,8 @@ class Database {
             );
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch(PDOException $e) {
-            echo "Connection Error: " . $e->getMessage();
+            // Avoid sending plain text before JSON responses.
+            $this->conn = null;
         }
 
         return $this->conn;

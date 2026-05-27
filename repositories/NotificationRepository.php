@@ -18,12 +18,6 @@ class NotificationRepository {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countByUserId(int $userId): int {
-        $stmt = $this->conn->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ?");
-        $stmt->execute([$userId]);
-        return (int)$stmt->fetchColumn();
-    }
-
     public function create(int $userId, string $type, string $title, string $message): array {
         $stmt = $this->conn->prepare("
             INSERT INTO notifications (user_id, type, title, message)
@@ -75,7 +69,10 @@ class NotificationRepository {
     }
 
     public function clearAll(int $userId): bool {
-        $stmt = $this->conn->prepare("DELETE FROM notifications WHERE user_id = ?");
+        $stmt = $this->conn->prepare("
+            DELETE FROM notifications
+            WHERE user_id = ?
+        ");
         return $stmt->execute([$userId]);
     }
 }

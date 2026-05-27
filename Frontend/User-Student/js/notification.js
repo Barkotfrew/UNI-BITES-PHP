@@ -1,21 +1,38 @@
 let notifications = [];
 let currentFilter = "all";
+let pollHandle = null;
+
+async function apiRequest(action, method = "GET", body = null) {
+    const options = {
+        method,
+        credentials: "same-origin",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    };
+
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(`../../public/notifications.php?action=${action}`, options);
+    const result = await response.json();
+
+    if (!response.ok) {
+        throw new Error(result.message || "Request failed");
+    }
+
+    return result;
+}
 
 async function loadNotifications() {
     try {
-        const response = await fetch("../../public/notifications.php");
-
-        if (!response.ok) {
-            throw new Error("Failed to load notifications");
-        }
-
-        const data = await response.json();
-        notifications = data;
+        const result = await apiRequest("list", "GET");
+        notifications = result.data?.notifications || [];
         renderNotifications();
         updateBadge();
     } catch (error) {
         console.error("Failed to fetch notifications:", error);
-
         const container = document.querySelector(".notifications-list");
         container.innerHTML = "<p>Failed to load notifications.</p>";
     }
@@ -23,7 +40,6 @@ async function loadNotifications() {
 
 function renderNotifications() {
     const container = document.querySelector(".notifications-list");
-
     let filteredNotifications = notifications;
 
     if (currentFilter !== "all") {
@@ -71,16 +87,17 @@ function getTypeLabel(type) {
     if (type === "ready") return "Ready";
     if (type === "updated") return "Update";
     if (type === "reminder") return "Reminder";
+    if (type === "order") return "Order";
+    if (type === "cancelled") return "Cancelled";
     return "Notification";
 }
 
 function updateBadge() {
     const unreadCount = notifications.filter(function (notification) {
-        return notification.isRead === false;
+        return !notification.isRead;
     }).length;
 
     const badge = document.querySelector(".nav-notification-badge");
-
     if (!badge) {
         return;
     }
@@ -104,25 +121,40 @@ function setFilter(filterType) {
     renderNotifications();
 }
 
-function toggleRead(id) {
-    notifications = notifications.map(function (notification) {
-        if (notification.id === id) {
-            notification.isRead = !notification.isRead;
-        }
-        return notification;
-    });
-
-    renderNotifications();
-    updateBadge();
+async function toggleRead(id) {
+    try {
+        await apiRequest("read", "POST", { notification_id: id });
+        await loadNotifications();
+    } catch (error) {
+        console.error("Failed to mark notification as read:", error);
+    }
 }
 
-function deleteNotification(id) {
-    notifications = notifications.filter(function (notification) {
-        return notification.id !== id;
-    });
+async function deleteNotification(id) {
+    try {
+        await apiRequest("delete", "POST", { notification_id: id });
+        await loadNotifications();
+    } catch (error) {
+        console.error("Failed to delete notification:", error);
+    }
+}
 
-    renderNotifications();
-    updateBadge();
+async function markAllRead() {
+    try {
+        await apiRequest("read_all", "POST");
+        await loadNotifications();
+    } catch (error) {
+        console.error("Failed to mark all notifications as read:", error);
+    }
+}
+
+async function clearAll() {
+    try {
+        await apiRequest("clear", "POST");
+        await loadNotifications();
+    } catch (error) {
+        console.error("Failed to clear notifications:", error);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -132,5 +164,22 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    const markAllButton = document.getElementById("mark-all-read");
+    const clearAllButton = document.getElementById("clear-all");
+
+    if (markAllButton) {
+        markAllButton.addEventListener("click", markAllRead);
+    }
+
+    if (clearAllButton) {
+        clearAllButton.addEventListener("click", clearAll);
+    }
+
     loadNotifications();
+
+    if (pollHandle) {
+        clearInterval(pollHandle);
+    }
+
+    pollHandle = setInterval(loadNotifications, 5000);
 });
