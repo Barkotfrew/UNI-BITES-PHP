@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS cart (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
 -- ============================================================
 -- NOTIFICATIONS
 -- type uses VARCHAR so the application layer controls valid
@@ -107,7 +108,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- SAMPLE DATA  (optional — remove in production)
+-- SAMPLE DATA  (optional - remove in production)
 -- Passwords are bcrypt hashes of "password123"
 -- ============================================================
 INSERT IGNORE INTO users (username, email, password, role) VALUES
@@ -121,3 +122,9 @@ INSERT IGNORE INTO products (name, description, price, category, stock, availabl
 ('Teh Tarik',       'Pulled milk tea',                   2.00, 'drinks',   100, 1, 'Yellow KK'),
 ('Roti Canai',      'Flaky flatbread with curry dip',    2.50, 'breakfast', 60, 1, 'Yellow KK'),
 ('Chicken Burger',  'Grilled chicken burger',            7.00, 'lunch',     30, 1, 'Yellow KK');
+
+INSERT IGNORE INTO notifications (user_id, type, title, message, is_read) VALUES
+(3, 'ready', 'Your order is ready', 'Order #124 is ready for pickup at Yellow KK.', 0),
+(3, 'updated', 'Order update', 'Your order is now being prepared.', 0),
+(3, 'cancelled', 'Order cancelled', 'Your order #123 has been cancelled.', 0),
+(3, 'reminder', 'Your order is ready', 'Order #124 is ready for pickup at Central.', 0);
