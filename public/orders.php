@@ -136,7 +136,7 @@ switch ($action) {
             sendResponse(403, 'You can only update your own orders.');
         }
 
-        if ($sessionRole === 'cafe' && trim((string)($matchedOrder['cafe'] ?? '')) !== trim((string)($_SESSION['username'] ?? ''))) {
+        if ($sessionRole === 'cafe' && strtolower(trim((string)($matchedOrder['cafe'] ?? ''))) !== strtolower(trim((string)($_SESSION['username'] ?? '')))) {
             sendResponse(403, 'You can only update orders for your cafe.');
         }
 

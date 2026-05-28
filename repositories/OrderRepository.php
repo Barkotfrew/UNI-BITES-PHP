@@ -50,7 +50,7 @@ class OrderRepository {
         $stmt = $this->pdo->prepare("
             SELECT id, user_id, customer_name, cafe, items_json, total, status, delivery_location, notes, created_at, updated_at
             FROM orders
-            WHERE cafe = ?
+            WHERE LOWER(cafe) = LOWER(?)
             ORDER BY created_at DESC, id DESC
         ");
         $stmt->execute([$cafe]);

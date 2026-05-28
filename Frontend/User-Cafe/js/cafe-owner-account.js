@@ -8,6 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
     loadUserProfile(currentUser);
     populateFormFields(currentUser);
     setupEventListeners();
+
+    // Inject cafe name into footer
+    const cafeName    = currentUser.username || "Cafe";
+    const footerEl    = document.getElementById("cafe-name-footer");
+    const copyrightEl = document.getElementById("cafe-name-copyright");
+    if (footerEl)    footerEl.textContent    = cafeName + " Cafe";
+    if (copyrightEl) copyrightEl.textContent = cafeName + " Cafe";
 });
 
 function getCurrentUser() {

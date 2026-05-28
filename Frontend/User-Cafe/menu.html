@@ -25,18 +25,12 @@
     </nav>
 
     <main class="dashboard-main">
-        <!-- Cafe Selection -->
+        <!-- Cafe Header -->
         <div class="cafe-selector">
             <h1>Menu Management Dashboard</h1>
-            <div class="cafe-selection">
-                <label for="cafeSelect">Select Your Cafe:</label>
-                <select id="cafeSelect">
-                    <option value="kk-green">KK Green</option>
-                    <option value="central">Central</option>
-                    <option value="kk-yellow">KK Yellow</option>
-                    <option value="kibnesh">Kibnesh</option>
-                </select>
-            </div>
+            <p style="text-align:center;color:#666;margin-top:8px;">
+                Managing menu for: <strong id="cafeNameDisplay">Your Cafe</strong>
+            </p>
         </div>
 
         <!-- Add New Item Section -->
@@ -117,7 +111,7 @@
     <footer class="cafe-footer">
         <div class="container footer-content">
             <div class="footer-section">
-                <h3>Yellow KK Cafe</h3>
+                <h3 id="cafe-name-footer">Cafe</h3>
                 <p>Managing your cafe operations on Uni Bites</p>
             </div>
             
@@ -137,7 +131,7 @@
         </div>
         
         <div class="footer-bottom">
-            <p>&copy; 2025 Uni Bites Cafe Dashboard • Yellow KK Cafe</p>
+            <p>&copy; 2025 Uni Bites Cafe Dashboard • <span id="cafe-name-copyright">Cafe</span></p>
         </div>
     </footer>
 

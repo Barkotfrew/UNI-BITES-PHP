@@ -1,7 +1,15 @@
 let cafeOrders = [];
+let loggedInCafe = "";
 
 async function loadCafeOrders() {
     try {
+        const user = JSON.parse(
+            localStorage.getItem("currentCafeUser") ||
+            localStorage.getItem("user") ||
+            "{}"
+        );
+        loggedInCafe = user.username || "";
+
         const response = await fetch("../../public/orders.php?action=list", {
             credentials: "same-origin",
         });
@@ -11,7 +19,12 @@ async function loadCafeOrders() {
             throw new Error(result.message || "Failed to load cafe orders");
         }
 
-        cafeOrders = result.data?.orders || [];
+        const allOrders = result.data?.orders || [];
+
+        cafeOrders = loggedInCafe
+            ? allOrders.filter(o => (o.cafe || "").toLowerCase() === loggedInCafe.toLowerCase())
+            : allOrders;
+
     } catch (error) {
         console.error("Error loading cafe orders:", error);
         cafeOrders = [];
@@ -74,11 +87,7 @@ function createCafeOrderHTML(o) {
         `;
     }
 
-    html += `
-                </div>
-            </div>
-            <div class="cafe-order-actions">
-    `;
+    html += `</div></div><div class="cafe-order-actions">`;
 
     if (o.status === "pending") {
         html += `
@@ -91,11 +100,7 @@ function createCafeOrderHTML(o) {
         html += `<button class="ready-btn" onclick="markReady(${o.id})">Mark Ready</button>`;
     }
 
-    html += `
-            </div>
-        </div>
-    `;
-
+    html += `</div></div>`;
     return html;
 }
 
@@ -141,7 +146,7 @@ function markReady(orderId) {
 }
 
 function getLocationName(locationId) {
-    let locations = {
+    const locations = {
         "dorm-1": "Dormitory Block 1",
         "dorm-2": "Dormitory Block 2",
         library: "Library",
@@ -153,7 +158,7 @@ function getLocationName(locationId) {
 }
 
 function getCafeName(cafeId) {
-    let cafes = {
+    const cafes = {
         "kk-green": "KK Green",
         central: "Central",
         "kk-yellow": "KK Yellow",
@@ -165,11 +170,12 @@ function getCafeName(cafeId) {
 function updateOrderStats() {
     let pending = 0;
     for (let i = 0; i < cafeOrders.length; i++) {
-        if (cafeOrders[i].status === "pending") {
+        if (!["delivered", "cancelled"].includes(cafeOrders[i].status)) {
             pending++;
         }
     }
-    document.getElementById("pendingCount").textContent = pending;
+    const el = document.getElementById("pendingCount");
+    if (el) el.textContent = pending;
 }
 
 function showCafeMessage(text, isError = false) {
