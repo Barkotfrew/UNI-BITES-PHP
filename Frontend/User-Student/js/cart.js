@@ -107,7 +107,6 @@ class ShoppingCart {
       setTimeout(() => {
         initCartIcon();
         initFunFacts();
-        initSavedCart();
       }, 500);
 
       return;
@@ -178,9 +177,7 @@ class ShoppingCart {
 
   saveCart() {
     // Cart is stored in database - no localStorage needed
-  }
-
-  async updateQuantity(itemId, newQuantity) {
+  }  async updateQuantity(itemId, newQuantity) {
     if (newQuantity <= 0) {
       await this.removeItem(itemId);
       return;
@@ -438,7 +435,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // Simple cart actions
 function initCartActions() {
   const clearBtn = document.getElementById("clearCartBtn");
-  const saveBtn = document.getElementById("saveForLaterBtn");
 
   if (clearBtn) {
     clearBtn.addEventListener("click", async () => {
@@ -460,46 +456,9 @@ function initCartActions() {
       }
     });
   }
-
-  if (saveBtn) {
-    saveBtn.addEventListener("click", () => {
-      localStorage.setItem("savedCart", JSON.stringify(shoppingCart.cart));
-      shoppingCart.showNotification("💾 Cart saved for later!");
-    });
-  }
 }
 
 // Initialize cart actions when cart has items
 document.addEventListener("DOMContentLoaded", () => {
   setTimeout(initCartActions, 500);
-});
-// Simple saved cart functionality
-function initSavedCart() {
-  const savedCartSection = document.getElementById("savedCartSection");
-  const restoreBtn = document.getElementById("restoreSavedCartBtn");
-
-  // Check if there's a saved cart
-  const savedCart = localStorage.getItem("savedCart");
-  if (savedCart && JSON.parse(savedCart).length > 0) {
-    savedCartSection.style.display = "block";
-  }
-
-  // Restore saved cart
-  if (restoreBtn) {
-    restoreBtn.addEventListener("click", () => {
-      const saved = localStorage.getItem("savedCart");
-      if (saved) {
-        shoppingCart.cart = JSON.parse(saved);
-        shoppingCart.saveCart();
-        shoppingCart.displayCart();
-        shoppingCart.showNotification("📥 Saved cart restored!");
-        localStorage.removeItem("savedCart"); // Clear saved cart after restore
-      }
-    });
-  }
-}
-
-// Initialize saved cart when empty cart is shown
-document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(initSavedCart, 600);
 });
