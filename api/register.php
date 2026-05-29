@@ -44,16 +44,24 @@ try {
         exit;
     }
 
-    $userId = createUser($username, $email, $password, $role);
+    // Cafe accounts start as 'pending' until an admin approves them
+    $status = ($role === 'cafe') ? 'pending' : 'approved';
+    $userId = createUserWithStatus($username, $email, $password, $role, $status);
+
+    $message = ($role === 'cafe')
+        ? "Registration successful! Your cafe account is pending admin approval. You will be able to log in once approved."
+        : "Registration successful";
 
     echo json_encode([
         "success" => true,
-        "message" => "Registration successful",
+        "message" => $message,
+        "pending" => ($role === 'cafe'),
         "user"    => [
             "id"       => $userId,
             "username" => $username,
             "email"    => $email,
-            "role"     => $role
+            "role"     => $role,
+            "status"   => $status
         ]
     ]);
 

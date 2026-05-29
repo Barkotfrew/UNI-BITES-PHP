@@ -32,6 +32,17 @@ try {
         exit;
     }
 
+    // Check approval status for cafe accounts
+    $userStatus = $user['status'] ?? 'approved';
+    if ($user['role'] === 'cafe' && $userStatus === 'pending') {
+        echo json_encode(["success" => false, "message" => "Your cafe account is pending admin approval. Please wait for confirmation."]);
+        exit;
+    }
+    if ($userStatus === 'blocked') {
+        echo json_encode(["success" => false, "message" => "This account has been blocked. Please contact the administrator."]);
+        exit;
+    }
+
     session_start();
     $_SESSION['user_id']  = $user['id'];
     $_SESSION['username'] = $user['username'];
@@ -44,7 +55,9 @@ try {
             "id"       => $user['id'],
             "username" => $user['username'],
             "email"    => $user['email'],
-            "role"     => $user['role']
+            "phone"    => $user['phone'] ?? null,
+            "role"     => $user['role'],
+            "status"   => $user['status'] ?? 'approved'
         ]
     ]);
 

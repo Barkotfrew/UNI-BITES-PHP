@@ -17,8 +17,22 @@ class Database {
                 $this->password
             );
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            // Ensure the status column exists (added for cafe approval workflow).
+            // This runs once and is a no-op on subsequent requests.
+            $this->conn->exec("
+                ALTER TABLE users
+                    ADD COLUMN IF NOT EXISTS status
+                    ENUM('pending','approved','blocked') NOT NULL DEFAULT 'approved'
+            ");
+
+            // Ensure the phone column exists.
+            $this->conn->exec("
+                ALTER TABLE users
+                    ADD COLUMN IF NOT EXISTS phone VARCHAR(20) DEFAULT NULL
+            ");
+
         } catch(PDOException $e) {
-            // Avoid sending plain text before JSON responses.
             $this->conn = null;
         }
 

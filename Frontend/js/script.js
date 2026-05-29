@@ -64,9 +64,9 @@ function updateFormTitles() {
 
 function getFormInputs(form) {
     return {
-        username: form.querySelector('input[type="text"]')?.value.trim(),
-        password: form.querySelector('input[type="password"]')?.value.trim(),
-        email:    form.querySelector('input[type="email"]')?.value.trim(),
+        username: form.querySelector('input[name="username"]')?.value.trim(),
+        password: form.querySelector('input[name="password"]')?.value.trim(),
+        email:    form.querySelector('input[name="email"]')?.value.trim(),
     };
 }
 
@@ -107,7 +107,7 @@ async function handleLogin(event) {
             alert("Invalid admin credentials or unauthorized access");
             return;
         }
-        const user = { name: username, role: "admin", email: "admin@unibites.com", phone: null };
+        const user = { username: username, role: "admin", email: username + "@unibites.com" };
         storeAuthenticatedUser(user);
         redirectByRole(role);
         return;
@@ -145,6 +145,7 @@ async function handleRegister(event) {
         return;
     }
 
+    // Admin registration is not allowed through the public form
     if (role === "admin") {
         alert("Admin registration is not allowed. Only predefined admin accounts can access the system.");
         return;
@@ -159,7 +160,6 @@ async function handleRegister(event) {
     }
 
     try {
-        // Register
         const registerResponse = await fetch("../api/register.php", {
             method: "POST",
             credentials: "same-origin",
@@ -173,7 +173,13 @@ async function handleRegister(event) {
             return;
         }
 
-        // Auto-login after register
+        // Cafe accounts are pending — show message and redirect to landing page
+        if (registerResult.pending) {
+            showPendingModal(registerResult.message);
+            return;
+        }
+
+        // For students: auto-login after register
         const loginResponse = await fetch("../api/login.php", {
             method: "POST",
             credentials: "same-origin",
@@ -196,6 +202,46 @@ async function handleRegister(event) {
         console.error("Registration failed:", error);
         alert("Unable to register right now. Please try again.");
     }
+}
+
+/**
+ * Show a modal/overlay telling the cafe owner their registration is pending,
+ * then redirect to the landing page after they dismiss it.
+ */
+function showPendingModal(message) {
+    // Remove any existing modal
+    const existing = document.getElementById("pendingModal");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "pendingModal";
+    overlay.style.cssText = `
+        position:fixed;inset:0;background:rgba(0,0,0,.55);
+        display:flex;align-items:center;justify-content:center;z-index:9999;
+    `;
+
+    overlay.innerHTML = `
+        <div style="
+            background:#fff;border-radius:16px;padding:40px 36px;max-width:440px;
+            width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);
+        ">
+            <div style="font-size:52px;margin-bottom:16px;">⏳</div>
+            <h2 style="color:#403234;margin-bottom:12px;font-size:22px;">Registration Submitted!</h2>
+            <p style="color:#555;line-height:1.6;margin-bottom:28px;">${message}</p>
+            <button id="pendingOkBtn" style="
+                background:linear-gradient(135deg,#403234,#5a3c37);color:#fff;
+                border:none;padding:14px 36px;border-radius:10px;font-size:16px;
+                cursor:pointer;transition:.2s;
+            ">OK, Got It</button>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    document.getElementById("pendingOkBtn").addEventListener("click", () => {
+        overlay.remove();
+        window.location.href = "../Frontend/Landing-page.html";
+    });
 }
 
 function redirectByRole(role) {

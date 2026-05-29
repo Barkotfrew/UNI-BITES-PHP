@@ -11,8 +11,12 @@ CREATE TABLE IF NOT EXISTS users (
     email      VARCHAR(255) NOT NULL UNIQUE,
     password   VARCHAR(255) NOT NULL,
     role       ENUM('student', 'cafe', 'admin') NOT NULL DEFAULT 'student',
+    status     ENUM('pending', 'approved', 'blocked') NOT NULL DEFAULT 'approved',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Migration: add status column if upgrading an existing database
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS status ENUM('pending','approved','blocked') NOT NULL DEFAULT 'approved';
 
 -- ============================================================
 -- PRODUCTS
@@ -109,12 +113,22 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 -- ============================================================
 -- SAMPLE DATA  (optional - remove in production)
--- Passwords are bcrypt hashes of "password123"
+-- Admin passwords: 12345678  |  Cafe/Student passwords: password123
 -- ============================================================
-INSERT IGNORE INTO users (username, email, password, role) VALUES
-('admin',        'admin@unibites.com',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
-('cafe_yellow',  'yellow@unibites.com',  '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'cafe'),
-('student_ali',  'ali@student.com',      '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student');
+
+-- Admin accounts (password: 12345678)
+INSERT IGNORE INTO users (username, email, password, role, status) VALUES
+('anket',  'anket@unibites.com',  '$2y$10$DrkVC0wPKfLF81P16h.xqOosRRc6gcrBuDokrY11pdpDEXlYsrnde', 'admin', 'approved'),
+('bami',   'bami@unibites.com',   '$2y$10$DrkVC0wPKfLF81P16h.xqOosRRc6gcrBuDokrY11pdpDEXlYsrnde', 'admin', 'approved'),
+('barki',  'barki@unibites.com',  '$2y$10$DrkVC0wPKfLF81P16h.xqOosRRc6gcrBuDokrY11pdpDEXlYsrnde', 'admin', 'approved'),
+('mamo',   'mamo@unibites.com',   '$2y$10$DrkVC0wPKfLF81P16h.xqOosRRc6gcrBuDokrY11pdpDEXlYsrnde', 'admin', 'approved'),
+('emma',   'emma@unibites.com',   '$2y$10$DrkVC0wPKfLF81P16h.xqOosRRc6gcrBuDokrY11pdpDEXlYsrnde', 'admin', 'approved'),
+('barkot', 'barkot@unibites.com', '$2y$10$DrkVC0wPKfLF81P16h.xqOosRRc6gcrBuDokrY11pdpDEXlYsrnde', 'admin', 'approved');
+
+-- Sample cafe and student (password: password123)
+INSERT IGNORE INTO users (username, email, password, role, status) VALUES
+('cafe_yellow',  'yellow@unibites.com',  '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'cafe',    'approved'),
+('student_ali',  'ali@student.com',      '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'approved');
 
 INSERT IGNORE INTO products (name, description, price, category, stock, available, cafe) VALUES
 ('Nasi Lemak',      'Classic coconut rice with sambal',  5.50, 'lunch',     50, 1, 'Yellow KK'),

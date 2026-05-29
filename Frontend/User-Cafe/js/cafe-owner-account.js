@@ -27,14 +27,18 @@ function avatarKey(user) {
 }
 
 function loadUserProfile(user) {
-    const profileName = document.getElementById("profileName");
-    const infoPhone   = document.getElementById("infoPhone");
-    const infoEmail   = document.getElementById("infoEmail");
-    const profileImg  = document.getElementById("profileImg");
+    const profileName  = document.getElementById("profileName");
+    const profilePhone = document.getElementById("profilePhone");
+    const infoOwnerId  = document.getElementById("infoOwnerId");
+    const infoPhone    = document.getElementById("infoPhone");
+    const infoEmail    = document.getElementById("infoEmail");
+    const profileImg   = document.getElementById("profileImg");
 
-    if (profileName) profileName.textContent = user.username || "—";
-    if (infoPhone)   infoPhone.textContent   = "Not set";
-    if (infoEmail)   infoEmail.textContent   = user.email    || "—";
+    if (profileName)  profileName.textContent  = user.username || "—";
+    if (profilePhone) profilePhone.textContent = user.phone    || "—";
+    if (infoOwnerId)  infoOwnerId.textContent  = user.id ? `CFE-${String(user.id).padStart(4, "0")}` : "—";
+    if (infoPhone)    infoPhone.textContent    = user.phone    || "Not set";
+    if (infoEmail)    infoEmail.textContent    = user.email    || "—";
 
     if (profileImg) {
         const saved = localStorage.getItem(avatarKey(user));
@@ -44,9 +48,11 @@ function loadUserProfile(user) {
 
 function populateFormFields(user) {
     const usernameInput = document.getElementById("fullName");
+    const phoneInput    = document.getElementById("phone");
     const emailInput    = document.getElementById("email");
 
     if (usernameInput) usernameInput.value = user.username || "";
+    if (phoneInput)    phoneInput.value    = user.phone    || "";
     if (emailInput)    emailInput.value    = user.email    || "";
 }
 
@@ -92,7 +98,8 @@ async function handleProfileUpdate(event) {
         const result = await response.json();
 
         if (result.success) {
-            const updatedUser = result.user;
+            // Fix #8: merge instead of replace so no local fields are lost
+            const updatedUser = { ...currentUser, ...result.user };
             localStorage.setItem("currentCafeUser", JSON.stringify(updatedUser));
             loadUserProfile(updatedUser);
             populateFormFields(updatedUser);

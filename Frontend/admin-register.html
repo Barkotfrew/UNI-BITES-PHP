@@ -21,7 +21,7 @@
 
     <div class="credentials-panel signin">
         <h2 class="slide-element">Admin Login</h2>
-        <form id="loginForm" method="POST" action="../public/login.php">
+        <form id="loginForm">
             <input type="hidden" name="role" value="admin">
             <div class="field-wrapper slide-element">
                <input type="text" id="username" name="username" required>
@@ -48,15 +48,15 @@
 
     <div class="credentials-panel signup">
         <h2 class="slide-element">Admin Register</h2>
-        <form id="registerForm" method="POST" action="../public/signup.php">
+        <form id="registerForm">
             <input type="hidden" name="role" value="admin">
             <div class="field-wrapper slide-element">
-          <input type="text" id="username" name="username" required>
+          <input type="text" id="reg-username" name="username" required>
                 <label>Admin Username</label>
                 <i class="fa-solid fa-user-shield"></i>
             </div>
             <div class="field-wrapper slide-element">
-               <input type="email" id="email" name="email" required>
+               <input type="email" id="reg-email" name="email" required>
                 <label>Email</label>
                 <i class="fa-solid fa-envelope"></i>
             </div>
